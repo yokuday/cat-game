@@ -1,0 +1,18 @@
+{
+  "goblin": {
+    "animations": [
+      ["axe", "spr_axe", 10],
+      ["carry", "spr_carry", 8],
+      ["idle", "spr_idle", 8],
+      ["roll", "spr_roll", 9],
+      ["walk", "spr_walk", 8],
+      ["run", "spr_run", 8]
+    ],
+    "sprite_folder": "characters/goblin",
+    "extra_info": {
+      "offset_y": 7,
+
+      "height_multiplier": 1.0
+    }
+  }
+}
