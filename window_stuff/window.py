@@ -3,6 +3,7 @@ from draw_events.test_functions import Functions
 from window_stuff.hide_window import *
 
 from game_scripts import game
+from game_scripts.player_scripts import player_info
 
 from screeninfo import get_monitors
 
@@ -74,11 +75,12 @@ class Window:
 
         self.top_most = enforce_topmost(hwnd)
 
-        # functions for draw events
+        # TEST functions for draw events
         self.test_functions = Functions(self.width, self.height)
 
         # actual game logic
-        self.game = game.Game(self.width, self.height)
+        self.player_info = player_info.PlayerInfo()
+        self.game = game.Game(self.width, self.height, self.player_info)
 
     def main_step(self):
         pr.begin_drawing()
@@ -87,6 +89,10 @@ class Window:
         # game step
         self.game.step()
 
+        # ui
+        self.game.game_ui()
+
+        # key press
         char_pressed = pr.get_char_pressed()
         if char_pressed == 43 or char_pressed == 45:
             if char_pressed == 43:
@@ -95,8 +101,15 @@ class Window:
                 self.current_size = max(self.current_size - 1, 0)
             set_size(self.current_size)
 
-            script_path = f"{os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))}/main.py"
-            os.execv(sys.executable, [sys.executable, script_path])
+            self.height = self.max_height // self.size_options[self.current_size]
+
+            pr.set_window_size(self.width, self.height)
+            pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
+
+            self.game = game.Game(self.width, self.height, self.player_info)
+
+            #script_path = f"{os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))}/main.py"
+            #os.execv(sys.executable, [sys.executable, script_path])
             #os.execv(sys.executable, [sys.executable])   this should work if game is an executable
 
         # fps

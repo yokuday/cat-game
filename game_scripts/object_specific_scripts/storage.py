@@ -2,7 +2,9 @@ import pyray as pr
 
 
 class Storage:
-    def __init__(self, w, h):
+    def __init__(self, w, h, player_info):
+        self.player_info = player_info
+
         self.item_queue = []  # [item name, 1]
 
     def step(self, npc):
@@ -25,6 +27,9 @@ class Storage:
                     i += 1
                 else:
                     self.item_queue.pop(i)
+
+                    # give exp to player for popped item
+                    self.player_info.add_exp(1)
             else:
                 break
 

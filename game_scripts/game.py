@@ -2,16 +2,20 @@ import math, random
 
 from game_scripts.animations import GameAnimations
 from game_scripts.npc_logic import NPCManager
+from game_scripts.ui import MainUI
 
 
 class Game:
-    def __init__(self, w, h):
+    def __init__(self, w, h, player_info):
         self.w = w
         self.h = h
 
+        self.player_info = player_info
+
         # init everything
         self.animations = GameAnimations(w, h)
-        self.npc_manager = NPCManager(self.animations, w, h)
+        self.npc_manager = NPCManager(self.animations, w, h, player_info)
+        self.ui = MainUI(w, h, player_info)
 
     def step(self):
         npcs = self.npc_manager.npcs
@@ -65,7 +69,7 @@ class Game:
         # node stuff
         if tree_count < 10:
             if random.random() <= 0.02:
-                npcs.append(self.npc_manager.create_npc(random.choice(["oak_tree", "birch_tree", "stone_block"])))
+                npcs.append(self.npc_manager.create_npc(random.choice(["oak_tree", "birch_tree"])))
 
         # check if there are items to spawn
         # also check if its allowed to create a new item, aka not over item limit
@@ -73,3 +77,6 @@ class Game:
             for ind in npcs_to_spawn:
                 for npc in ind:
                     npcs.insert(0, npc)
+
+    def game_ui(self):
+        self.ui.field()

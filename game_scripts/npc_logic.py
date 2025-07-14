@@ -5,9 +5,11 @@ from game_scripts.object_specific_scripts.storage import Storage
 
 
 class NPCManager:
-    def __init__(self, animations, w, h):
+    def __init__(self, animations, w, h, player_info):
         self.w = w
         self.h = h
+
+        self.player_info = player_info
 
         self.animations = animations
 
@@ -29,7 +31,7 @@ class NPCManager:
         custom_classes = {
             "tree": Tree(self.w, self.h),
             "item": Item(self.w, self.h),
-            "storage": Storage(self.w, self.h)
+            "storage": Storage(self.w, self.h, self.player_info)
         }
 
         return {
