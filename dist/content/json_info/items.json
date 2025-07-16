@@ -1,0 +1,13 @@
+{
+  "item_wood": {
+    "animations": [
+      ["idle", "spr_wood", 1]
+    ],
+    "sprite_folder": "items",
+    "extra_info": {
+      "offset_y": 10,
+      "height_multiplier": 0.15,
+      "parent_type": "item"
+    }
+  }
+}

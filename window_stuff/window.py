@@ -38,9 +38,11 @@ def set_size(size, file="config.json"):
 
 
 class Window:
-    def __init__(self, above_taskbar=True):
+    def __init__(self, ui_window, above_taskbar=True):
         monitors = get_monitors()
         primary = next((m for m in monitors if m.is_primary), monitors[0])
+
+        self.ui_window = ui_window
 
         self.max_width = primary.width
         self.max_height = primary.height
@@ -50,6 +52,8 @@ class Window:
 
         self.width = self.max_width
         self.height = self.max_height // self.size_options[self.current_size]
+
+        self.y_offset = 0
 
         self.taskbar_height = get_taskbar_height()
         print(self.taskbar_height, self.max_height, self.max_width)
@@ -80,7 +84,7 @@ class Window:
 
         # actual game logic
         self.player_info = player_info.PlayerInfo()
-        self.game = game.Game(self.width, self.height, self.player_info)
+        self.game = game.Game(self.width, self.height, self.player_info, ui_window)
 
     def main_step(self):
         pr.begin_drawing()
@@ -103,10 +107,9 @@ class Window:
 
             self.height = self.max_height // self.size_options[self.current_size]
 
-            pr.set_window_size(self.width, self.height)
-            pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
+            self.set_window_info(False)
 
-            self.game = game.Game(self.width, self.height, self.player_info)
+            self.game = game.Game(self.width, self.height, self.player_info, self.ui_window)
 
             #script_path = f"{os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))}/main.py"
             #os.execv(sys.executable, [sys.executable, script_path])
@@ -117,3 +120,13 @@ class Window:
 
         pr.end_drawing()
 
+    def set_window_info(self, menu_mode=False):
+        if not menu_mode:
+            pr.set_window_size(self.width, self.height)
+            pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
+
+            self.y_offset = 0
+        else:
+            remaining_y = self.max_height - self.taskbar_height - 10
+            pr.set_window_size(self.width, remaining_y)
+            pr.set_window_position(0, self.max_height - remaining_y - self.taskbar_height)

@@ -2,8 +2,9 @@ import pyray as pr
 
 
 class Storage:
-    def __init__(self, w, h, player_info):
+    def __init__(self, w, h, player_info, y_offset):
         self.player_info = player_info
+        self.y_offset = y_offset
 
         self.item_queue = []  # [item name, 1]
 
@@ -52,7 +53,7 @@ class Storage:
 
         # destination rectangle ( drawing from center )
         dest_rect = pr.Rectangle(
-            x, y,
+            x, y + self.y_offset,
             scaled_width, scaled_height
         )
 

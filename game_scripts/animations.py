@@ -3,9 +3,10 @@ import random, json
 
 
 class GameAnimations:
-    def __init__(self, w, h):
+    def __init__(self, w, h, y_offset):
         self.w = w
         self.h = h
+        self.y_offset = y_offset
 
         self.animation_info = {}
         self.initialize_animation_info()
@@ -136,7 +137,7 @@ class GameAnimations:
 
         # destination rectangle ( drawing from center )
         dest_rect = pr.Rectangle(
-            general_info["x"], general_info["y"] - general_info["offset_y"] * scale,
+            general_info["x"], general_info["y"] - general_info["offset_y"] * scale + self.y_offset,
             scaled_width, scaled_height
         )
 

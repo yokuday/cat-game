@@ -6,16 +6,18 @@ from game_scripts.ui import MainUI
 
 
 class Game:
-    def __init__(self, w, h, player_info):
+    def __init__(self, w, h, player_info, ui_window):
         self.w = w
         self.h = h
+
+        self.y_offset = 0
 
         self.player_info = player_info
 
         # init everything
-        self.animations = GameAnimations(w, h)
-        self.npc_manager = NPCManager(self.animations, w, h, player_info)
-        self.ui = MainUI(w, h, player_info)
+        self.animations = GameAnimations(w, h, self.y_offset)
+        self.npc_manager = NPCManager(self.animations, w, h, player_info, self.y_offset)
+        self.ui = MainUI(w, h, player_info, ui_window)
 
     def step(self):
         npcs = self.npc_manager.npcs

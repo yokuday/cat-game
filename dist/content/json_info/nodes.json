@@ -1,0 +1,54 @@
+{
+  "storage_box": {
+    "animations": [
+      ["idle", "spr_storage", 1]
+    ],
+    "sprite_folder": "decorations",
+    "extra_info": {
+      "height_multiplier": 0.2,
+
+      "origin_point": "middle-bottom",
+      "parent_type": "storage"
+    },
+    "included_animations": ["item"]
+  },
+  "oak_tree": {
+    "animations": [
+      ["idle", "spr_oak_tree", 4]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "height_multiplier": 0.5,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": 8,
+      "parent_type": "tree"
+    }
+  },
+  "birch_tree": {
+    "animations": [
+      ["idle", "spr_birch_tree", 4]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "height_multiplier": 0.667,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": 8,
+      "parent_type": "tree"
+    }
+  },
+  "stone_block": {
+    "animations": [
+      ["idle", "spr_stone_node", 3]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "height_multiplier": 0.4,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "tree"
+    }
+  }
+}
