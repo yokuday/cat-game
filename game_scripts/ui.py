@@ -21,23 +21,24 @@ def blend_colors(color1: pr.Color, color2: pr.Color, t: float) -> pr.Color:
 
 
 class MainUI:
-    def __init__(self, w, h, player_info, ui_window):
+    def __init__(self, w, h, player_info, ui_window, font):
         self.w = w
         self.h = h
         self.y_offset = 0
 
+        self.font = font
+
         self.ui_window = ui_window
 
         self.info = player_info.info
-        self.font = pr.Font()
 
         self.mouse = Controller()
 
         self.window_location = pr.get_window_position()
 
         # EXP BAR
-        width = self.w // 6
-        self.exp_bar_size = [width, min(self.h // 12, width // 3)]
+        height = self.h // 10
+        self.exp_bar_size = [int(height * 10), height]
         self.exp_bar_padding = self.h // 25
 
         self.exp_bar_rectangle = pr.Rectangle(self.exp_bar_padding, self.h - self.exp_bar_padding - self.exp_bar_size[1] + self.y_offset,
@@ -58,6 +59,9 @@ class MainUI:
         self.icons()
 
     def exp_bar(self):
+        w = self.exp_bar_size[0]
+        h = self.exp_bar_size[1]
+
         if self.exp_variable_pi > 0:
             self.exp_variable_pi += math.pi / 20
             if self.exp_variable_pi >= 2*math.pi:
@@ -93,18 +97,19 @@ class MainUI:
         pr.draw_rectangle_rounded_lines_ex(self.exp_bar_rectangle, 0.5, -1, self.exp_bar_padding / 4, black)
 
         # draw level text
-        pos = pr.Vector2(self.exp_bar_padding * 2, self.h - self.exp_bar_padding - self.exp_bar_size[1] + self.y_offset)
-        origin = pr.Vector2(0, 0)
-        pr.draw_text_pro(self.font, f"Lv. {self.info['current_level']}",
-                         pos, origin, 0, self.exp_bar_size[1], 0, black)
+        text_size = self.exp_bar_size[1]
+        text_x = self.exp_bar_padding * 2
+        text_y = self.h - self.exp_bar_padding - self.exp_bar_size[1] // 2
+        max_width = w // 2.4
+        self.draw_fitted_text(f"Lv. {self.info['current_level']}", text_x, text_y, max_width, text_size, black, center_y=True)
 
         # draw exp text
         exp_text = f"{exp} / {required_exp}"
-        text_size = pr.measure_text(exp_text, self.exp_bar_size[1])
-        origin = pr.Vector2(0, 0)  # text has to go from right to left, so pos is taking care of that
-        pos = pr.Vector2(self.exp_bar_padding + self.exp_bar_size[0] - text_size,
-                         self.h - self.exp_bar_padding - self.exp_bar_size[1] + self.y_offset)
-        pr.draw_text_pro(self.font, exp_text, pos, origin, 0, self.exp_bar_size[1], 0, black)
+        text_x = self.exp_bar_padding + self.exp_bar_size[0] * 0.98
+        text_y = self.h - self.exp_bar_padding - self.exp_bar_size[1] // 2
+        max_width = w // 2.4
+
+        self.draw_fitted_text(exp_text, text_x, text_y, max_width, self.exp_bar_size[1], black, align_right=True, center_y=True)
 
         pr.rl_pop_matrix()
 
@@ -150,3 +155,21 @@ class MainUI:
 
     def menu(self):
         pass
+
+    def draw_fitted_text(self, text, x, y, max_width, initial_size, color, align_right=False, center_y=False):
+        size = initial_size
+        text_metrics = pr.measure_text_ex(self.font, text, size, 0)
+        text_width = text_metrics.x
+
+        while text_width > max_width and size > 1:
+            size -= 1
+            text_metrics = pr.measure_text_ex(self.font, text, size, 0)
+            text_width = text_metrics.x
+
+        if align_right:
+            x -= text_width
+
+        if center_y:
+            y -= text_metrics.y / 2
+
+        pr.draw_text_pro(self.font, text, pr.Vector2(x, y), pr.Vector2(0, 0), 0, size, 0, color)

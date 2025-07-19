@@ -3,11 +3,14 @@ import socket
 import json
 import threading
 import os
-import sys
+import sys, uuid, random
 
 
 class UIBridge:
-    def __init__(self, ui_script='ui_menu_files/main.exe', port=22128):
+    def __init__(self, test_mode, ui_script='ui_menu_files/ui_main.exe', port=22128):
+        if test_mode:
+            ui_script = 'ui_menu_files/ui_main.py'
+
         self.socket = None
         self.client_socket = None
         self.ui_process = None
@@ -24,20 +27,14 @@ class UIBridge:
             self.socket.listen(1)
 
             # Launch UI process
-            while True:
-                try:
-                    if getattr(sys, 'frozen', False):  # If running as exe
-                        ui_path = os.path.join(os.path.dirname(sys.executable), self.ui_script)
-                        self.ui_process = subprocess.Popen([ui_path])
-                        break
-                    else:
-                        self.ui_process = subprocess.Popen([sys.executable, self.ui_script])
-                        break
-                except:
-                    self.ui_script = self.ui_script.replace(".exe", ".py")
+            if getattr(sys, 'frozen', False):  # If running as exe
+                ui_path = os.path.join(os.path.dirname(sys.executable), self.ui_script)
+                self.ui_process = subprocess.Popen([ui_path])
+            else:
+                self.ui_process = subprocess.Popen([sys.executable, self.ui_script])
 
             # Accept connection (with timeout)
-            self.socket.settimeout(2.0)
+            self.socket.settimeout(1.0)
             self.client_socket, _ = self.socket.accept()
             self.client_socket.settimeout(0.001)  # Non-blocking
 
@@ -47,6 +44,7 @@ class UIBridge:
     def send(self, data):
         if self.client_socket:
             try:
+                data["random_number"] = str(random.random())
                 message = json.dumps(data) + '\n'
                 self.client_socket.send(message.encode())
             except:

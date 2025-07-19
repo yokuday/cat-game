@@ -5,6 +5,7 @@ import sys
 import winxpgui
 
 from hide_window import *
+from ui_shop import UI
 
 
 class Window:
@@ -36,10 +37,15 @@ class Window:
         hide_from_taskbar(hwnd)
         set_topmost(hwnd)
 
-        self.top_most = enforce_topmost(hwnd)
+        #self.top_most = enforce_topmost(hwnd)
 
         self.show_window = False
         self.socket_info = None
+
+        self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
+        pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
+
+        self.ui = UI(self.width, self.height, self.font)
 
     def step(self, socket_info):
         if socket_info != self.socket_info:
@@ -55,13 +61,14 @@ class Window:
                     pr.close_window()
                     sys.exit()
 
-                self.socket_info = None
+                if self.socket_info.get("sold", None):
+                    self.ui.convert_item(self.socket_info.get("sold", None))
+
+        self.ui.show = self.show_window
 
         pr.begin_drawing()
+        pr.clear_background(pr.Color(1, 3, 2, 0))
 
-        if not self.show_window:
-            pr.clear_background(pr.Color(1, 3, 2, 0))
-        else:
-            pr.clear_background(pr.Color(255, 255, 255, 255))
+        self.ui.step()
 
         pr.end_drawing()

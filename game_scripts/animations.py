@@ -113,40 +113,53 @@ class GameAnimations:
 
     def draw_npc(self, npc):
         anim_info = npc["animation_info"]
-        current_anim = npc["animations"][anim_info["current_animation"]]
-        general_info = npc["general_info"]
 
-        origin_point = general_info["origin_point"]
-        rotation = general_info["rotation"]
-        alpha = general_info["alpha"]
-        change_scale = general_info["change_scale"]
+        current_animation = anim_info["current_animation"]
 
-        frame_width = current_anim["frame_width"]
+        # check if there are additional animations that need to be stacked
+        current_animations = []
+        for potential_animation in npc["animations"]:
+            if potential_animation != current_animations:
+                if current_animation in potential_animation:
+                    current_animations.append(potential_animation)
 
-        # source rectangle
-        source_rect = pr.Rectangle(
-            anim_info["current_frame"] * frame_width, 0,
-            frame_width * general_info.get("xscale", 1),  # flip width if xscale is -1
-            current_anim["texture"].height
-        )
+        current_animations.insert(0, current_animation)
 
-        # scale and size
-        scale = general_info["height"] / current_anim["texture"].height * change_scale
-        scaled_width = frame_width * scale
-        scaled_height = general_info["height"] * change_scale
+        for animation in current_animations:
+            current_anim = npc["animations"][animation]
+            general_info = npc["general_info"]
 
-        # destination rectangle ( drawing from center )
-        dest_rect = pr.Rectangle(
-            general_info["x"], general_info["y"] - general_info["offset_y"] * scale + self.y_offset,
-            scaled_width, scaled_height
-        )
+            origin_point = general_info["origin_point"]
+            rotation = general_info["rotation"]
+            alpha = general_info["alpha"]
+            change_scale = general_info["change_scale"]
 
-        # origin point (center of the sprite)
-        origin = pr.Vector2(scaled_width / 2, scaled_height / 2)
+            frame_width = current_anim["frame_width"]
 
-        if origin_point == "middle-bottom":
-            origin = pr.Vector2(scaled_width / 2, scaled_height)
+            # source rectangle
+            source_rect = pr.Rectangle(
+                anim_info["current_frame"] * frame_width, 0,
+                frame_width * general_info.get("xscale", 1),  # flip width if xscale is -1
+                current_anim["texture"].height
+            )
 
-        color = pr.Color(255, 255, 255, int(alpha * 255))
-        pr.draw_texture_pro(current_anim["texture"], source_rect, dest_rect,
-                            origin, rotation, color)
+            # scale and size
+            scale = general_info["height"] / current_anim["texture"].height * change_scale
+            scaled_width = frame_width * scale
+            scaled_height = general_info["height"] * change_scale
+
+            # destination rectangle ( drawing from center )
+            dest_rect = pr.Rectangle(
+                general_info["x"], general_info["y"] - general_info["offset_y"] * scale + self.y_offset,
+                scaled_width, scaled_height
+            )
+
+            # origin point (center of the sprite)
+            origin = pr.Vector2(scaled_width / 2, scaled_height / 2)
+
+            if origin_point == "middle-bottom":
+                origin = pr.Vector2(scaled_width / 2, scaled_height)
+
+            color = pr.Color(255, 255, 255, int(alpha * 255))
+            pr.draw_texture_pro(current_anim["texture"], source_rect, dest_rect,
+                                origin, rotation, color)

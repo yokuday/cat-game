@@ -27,10 +27,11 @@ class Storage:
                                      -p * 120, 1 - p, 0.5)
                     i += 1
                 else:
-                    self.item_queue.pop(i)
+                    item = self.item_queue.pop(i)
 
                     # give exp to player for popped item
                     self.player_info.add_exp(1)
+                    self.player_info.ui_window.send({"sold": item[0]})
             else:
                 break
 

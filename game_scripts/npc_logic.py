@@ -15,12 +15,11 @@ class NPCManager:
         self.animations = animations
 
         self.npcs = [
-            self.create_npc(), self.create_npc(), self.create_npc(),
             self.create_npc(npc_type="storage_box", coords=[self.w // 2, self.h]),
         ]
 
-        for _ in range(5):
-            self.npcs.append(self.create_npc())
+        for _ in range(8):
+            self.npcs.append(self.create_npc(npc_type=random.choice(["spikey", "shortie", "moppie", "longy", "curly", "bowly"])))
 
     def create_npc(self, npc_type="goblin", coords=None):
         extra_info = self.animations.animation_info[npc_type]["extra_info"]

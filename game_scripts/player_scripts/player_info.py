@@ -2,8 +2,10 @@ import json
 
 
 class PlayerInfo:
-    def __init__(self):
+    def __init__(self, ui_window):
         file = "player_info.json"
+
+        self.ui_window = ui_window
 
         try:
             with open(file, 'r') as f:

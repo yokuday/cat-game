@@ -73,6 +73,12 @@ def enforce_topmost(hwnd):
     def keep_on_top():
         while _running:
             try:
+                # get idle game window
+                hwnd_second = win32gui.FindWindow(None, "Idle - game - ui_window")
+
+                # win32gui.SetWindowPos(hwnd_second, win32con.HWND_TOPMOST, 0, 0, 0, 0,
+                #                       win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_NOACTIVATE)
+
                 win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0,
                                       win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_NOACTIVATE)
             except:

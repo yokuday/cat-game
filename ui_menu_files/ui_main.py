@@ -21,6 +21,7 @@ class GameUI():
             self.game_window.step(self.socket_info)
 
         pr.close_window()
+        self.send({"close_window": 1})
 
     def send(self, data):
         try:

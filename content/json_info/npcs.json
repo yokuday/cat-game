@@ -14,5 +14,131 @@
 
       "height_multiplier": 1.0
     }
+  },
+    "spikey": {
+      "animations": [
+        ["idle", "spr_idle_base", 9],
+        ["idle-head", "/spikey/spr_idle", 9],
+        ["idle-tools", "spr_idle_tools", 9],
+        ["run", "spr_run_base", 8],
+        ["run-head", "/spikey/spr_run", 8],
+        ["run-tools", "spr_run_tools", 8],
+        ["carry", "spr_carry_base", 8],
+        ["carry-head", "/spikey/spr_carry", 8],
+        ["carry-tools", "spr_carry_tools", 8],
+        ["axe", "spr_axe_base", 10],
+        ["axe-head", "/spikey/spr_axe", 10],
+        ["axe-tools", "spr_axe_tools", 10]
+      ],
+      "sprite_folder": "characters/human",
+      "extra_info": {
+        "offset_y": 7,
+        "height_multiplier": 1.0
+      }
+  },
+      "shortie": {
+      "animations": [
+        ["idle", "spr_idle_base", 9],
+        ["idle-head", "/shortie/spr_idle", 9],
+        ["idle-tools", "spr_idle_tools", 9],
+        ["run", "spr_run_base", 8],
+        ["run-head", "/shortie/spr_run", 8],
+        ["run-tools", "spr_run_tools", 8],
+        ["carry", "spr_carry_base", 8],
+        ["carry-head", "/shortie/spr_carry", 8],
+        ["carry-tools", "spr_carry_tools", 8],
+        ["axe", "spr_axe_base", 10],
+        ["axe-head", "/shortie/spr_axe", 10],
+        ["axe-tools", "spr_axe_tools", 10]
+      ],
+      "sprite_folder": "characters/human",
+      "extra_info": {
+        "offset_y": 7,
+        "height_multiplier": 1.0
+      }
+  },
+  "moppie": {
+      "animations": [
+        ["idle", "spr_idle_base", 9],
+        ["idle-head", "/moppie/spr_idle", 9],
+        ["idle-tools", "spr_idle_tools", 9],
+        ["run", "spr_run_base", 8],
+        ["run-head", "/moppie/spr_run", 8],
+        ["run-tools", "spr_run_tools", 8],
+        ["carry", "spr_carry_base", 8],
+        ["carry-head", "/moppie/spr_carry", 8],
+        ["carry-tools", "spr_carry_tools", 8],
+        ["axe", "spr_axe_base", 10],
+        ["axe-head", "/moppie/spr_axe", 10],
+        ["axe-tools", "spr_axe_tools", 10]
+      ],
+      "sprite_folder": "characters/human",
+      "extra_info": {
+        "offset_y": 7,
+        "height_multiplier": 1.0
+      }
+  },
+  "longy": {
+      "animations": [
+        ["idle", "spr_idle_base", 9],
+        ["idle-head", "/longy/spr_idle", 9],
+        ["idle-tools", "spr_idle_tools", 9],
+        ["run", "spr_run_base", 8],
+        ["run-head", "/longy/spr_run", 8],
+        ["run-tools", "spr_run_tools", 8],
+        ["carry", "spr_carry_base", 8],
+        ["carry-head", "/longy/spr_carry", 8],
+        ["carry-tools", "spr_carry_tools", 8],
+        ["axe", "spr_axe_base", 10],
+        ["axe-head", "/longy/spr_axe", 10],
+        ["axe-tools", "spr_axe_tools", 10]
+      ],
+      "sprite_folder": "characters/human",
+      "extra_info": {
+        "offset_y": 7,
+        "height_multiplier": 1.0
+      }
+  },
+  "curly": {
+      "animations": [
+        ["idle", "spr_idle_base", 9],
+        ["idle-head", "/curly/spr_idle", 9],
+        ["idle-tools", "spr_idle_tools", 9],
+        ["run", "spr_run_base", 8],
+        ["run-head", "/curly/spr_run", 8],
+        ["run-tools", "spr_run_tools", 8],
+        ["carry", "spr_carry_base", 8],
+        ["carry-head", "/curly/spr_carry", 8],
+        ["carry-tools", "spr_carry_tools", 8],
+        ["axe", "spr_axe_base", 10],
+        ["axe-head", "/curly/spr_axe", 10],
+        ["axe-tools", "spr_axe_tools", 10]
+      ],
+      "sprite_folder": "characters/human",
+      "extra_info": {
+        "offset_y": 7,
+        "height_multiplier": 1.0
+      }
+  },
+  "bowly": {
+      "animations": [
+        ["idle", "spr_idle_base", 9],
+        ["idle-head", "/bowly/spr_idle", 9],
+        ["idle-tools", "spr_idle_tools", 9],
+        ["run", "spr_run_base", 8],
+        ["run-head", "/bowly/spr_run", 8],
+        ["run-tools", "spr_run_tools", 8],
+        ["carry", "spr_carry_base", 8],
+        ["carry-head", "/bowly/spr_carry", 8],
+        ["carry-tools", "spr_carry_tools", 8],
+        ["axe", "spr_axe_base", 10],
+        ["axe-head", "/bowly/spr_axe", 10],
+        ["axe-tools", "spr_axe_tools", 10]
+      ],
+      "sprite_folder": "characters/human",
+      "extra_info": {
+        "offset_y": 7,
+        "height_multiplier": 1.0
+      }
   }
 }

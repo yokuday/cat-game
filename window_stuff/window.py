@@ -61,7 +61,7 @@ class Window:
         if not above_taskbar:
             self.taskbar_height = 0
 
-        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST)
+        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT)
         pr.init_window(self.width, self.height, "Idle - game")
         pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
 
@@ -83,7 +83,7 @@ class Window:
         self.test_functions = Functions(self.width, self.height)
 
         # actual game logic
-        self.player_info = player_info.PlayerInfo()
+        self.player_info = player_info.PlayerInfo(ui_window)
         self.game = game.Game(self.width, self.height, self.player_info, ui_window)
 
     def main_step(self):

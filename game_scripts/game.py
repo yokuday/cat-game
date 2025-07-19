@@ -4,6 +4,8 @@ from game_scripts.animations import GameAnimations
 from game_scripts.npc_logic import NPCManager
 from game_scripts.ui import MainUI
 
+import pyray as pr
+
 
 class Game:
     def __init__(self, w, h, player_info, ui_window):
@@ -14,10 +16,13 @@ class Game:
 
         self.player_info = player_info
 
+        self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
+        pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
+
         # init everything
         self.animations = GameAnimations(w, h, self.y_offset)
         self.npc_manager = NPCManager(self.animations, w, h, player_info, self.y_offset)
-        self.ui = MainUI(w, h, player_info, ui_window)
+        self.ui = MainUI(w, h, player_info, ui_window, self.font)
 
     def step(self):
         npcs = self.npc_manager.npcs
@@ -33,7 +38,9 @@ class Game:
             action_info = npc["action_info"]
             prev_x = general_info["x"]
 
-            if npc["type"] == "goblin":
+            action_npcs = ["spikey", "shortie", "moppie", "longy", "curly", "bowly"]
+
+            if npc["type"] in action_npcs:
                 self.npc_manager.idle(npc)
                 self.npc_manager.action(npc)
 
