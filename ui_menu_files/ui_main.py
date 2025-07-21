@@ -5,6 +5,8 @@ import threading
 import pyray as pr
 from ui_window import Window
 
+import random
+
 
 class GameUI():
     def __init__(self):
@@ -25,6 +27,7 @@ class GameUI():
 
     def send(self, data):
         try:
+            data["random_number"] = str(random.random())
             self.socket.send((json.dumps(data) + '\n').encode())
         except:
             pass
@@ -40,7 +43,7 @@ class GameUI():
                     if line:
                         game_data = json.loads(line)
                         self.socket_info = game_data
-                        print(game_data)
+                        print(self.socket_info)
             except:
                 break
 

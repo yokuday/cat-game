@@ -31,7 +31,7 @@ class Storage:
 
                     # give exp to player for popped item
                     self.player_info.add_exp(1)
-                    self.player_info.ui_window.send({"sold": item[0]})
+                    self.player_info.ui_window.prepare_to_send({"sold": item[0]})
             else:
                 break
 

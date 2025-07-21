@@ -17,8 +17,12 @@ while not pr.window_should_close():
 
     game_window.main_step()
 
+    # send all prepared data
+    ui.send()
+
 # close also game_window
-ui.send({"close_window": 1})
+ui.prepare_to_send({"close_window": 1})
+ui.send()
 
 ui.close()
 pr.close_window()

@@ -1,0 +1,8 @@
+{
+  "NOTE": "name, sprite, cost, level",
+  "shop_contents": [
+    ["SPIKEY", "content/ui/spr_environment_icon", 100, 0],
+    ["GOBLIN", "content/ui/spr_environment_icon", 150, 0],
+    ["MARY", "content/ui/spr_npcs_icon", 1000, 1]
+  ]
+}

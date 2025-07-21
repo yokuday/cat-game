@@ -16,6 +16,9 @@ class PlayerInfo:
                 "current_exp": 0
             }
 
+        # send current level
+        self.ui_window.prepare_to_send({"current_level": self.info["current_level"]})
+
         self.info["required_exp"] = self.get_exp_requirement()
 
     def get_exp_requirement(self):
@@ -35,3 +38,5 @@ class PlayerInfo:
             self.info["current_exp"] -= self.info["required_exp"]
             self.info["current_level"] += 1
             self.info["required_exp"] = self.get_exp_requirement()
+
+            self.ui_window.prepare_to_send({"current_level": self.info["current_level"]})

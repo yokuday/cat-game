@@ -16,7 +16,7 @@ class Window:
         self.max_width = primary.width
         self.max_height = primary.height
 
-        self.height = int(self.max_height // 2)
+        self.height = int(self.max_height // 1.75)
         self.width = self.height
 
         self.y_offset = 0
@@ -40,7 +40,7 @@ class Window:
         #self.top_most = enforce_topmost(hwnd)
 
         self.show_window = False
-        self.socket_info = None
+        self.socket_info = {}
 
         self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
         pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
@@ -51,7 +51,7 @@ class Window:
         if socket_info != self.socket_info:
             self.socket_info = socket_info
 
-            if self.socket_info:
+            if self.socket_info is not None:
                 if self.socket_info.get("show_window", -1) == 1:
                     self.show_window = True
                 if self.socket_info.get("show_window", -1) == 0:
@@ -60,6 +60,9 @@ class Window:
                 if self.socket_info.get("close_window", -1) == 1:
                     pr.close_window()
                     sys.exit()
+
+                if self.socket_info.get("current_level", None):
+                    self.ui.update_info("level", int(self.socket_info.get("current_level", 0)))
 
                 if self.socket_info.get("sold", None):
                     self.ui.convert_item(self.socket_info.get("sold", None))
