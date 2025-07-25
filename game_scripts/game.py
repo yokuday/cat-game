@@ -3,6 +3,8 @@ import math, random
 from game_scripts.animations import GameAnimations
 from game_scripts.npc_logic import NPCManager
 from game_scripts.ui import MainUI
+from game_scripts.visual_scripts.effects_controller import VisualEffects
+
 
 import pyray as pr
 
@@ -23,6 +25,8 @@ class Game:
         self.animations = GameAnimations(w, h, self.y_offset)
         self.npc_manager = NPCManager(self.animations, w, h, player_info, self.y_offset)
         self.ui = MainUI(w, h, player_info, ui_window, self.font)
+        self.effects = VisualEffects(w, h)
+        self.effects.next_effects = ["fireflies", "rain"]
 
     def step(self):
         npcs = self.npc_manager.npcs
@@ -31,14 +35,17 @@ class Game:
 
         npcs_to_spawn = []
 
+        item_count = sum(1 for npc in npcs if npc.get("parent_type") == "item")
+        self.npc_manager.item_count = item_count
+
+        action_npcs = ["spikey", "shortie", "moppie", "longy", "curly", "bowly", "pirate_captain", "green_piggy", "goblin"]
+
         # npc stuff
         for i in range(len(npcs) - 1, -1, -1):
             npc = npcs[i]
             general_info = npc["general_info"]
             action_info = npc["action_info"]
             prev_x = general_info["x"]
-
-            action_npcs = ["spikey", "shortie", "moppie", "longy", "curly", "bowly"]
 
             if npc["type"] in action_npcs:
                 self.npc_manager.idle(npc)
@@ -69,6 +76,9 @@ class Game:
 
             self.animations.update_animation(npc)
             self.animations.draw_npc(npc)
+
+            # draw visual effects
+            self.effects.step()
 
             # post step, if item has it
             if npc["custom_class"]:

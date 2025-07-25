@@ -1,8 +1,9 @@
 {
-  "NOTE": "name, sprite, cost, level",
+  "NOTE": "name, sprite, cost, req level, amount bought (just 0 or 1 at first, maybe increase later), npc_name",
   "shop_contents": [
-    ["SPIKEY", "content/ui/spr_environment_icon", 100, 0],
-    ["GOBLIN", "content/ui/spr_environment_icon", 150, 0],
-    ["MARY", "content/ui/spr_npcs_icon", 1000, 1]
+    ["SPIKEY", "content/ui/spr_environment_icon", 5, 0, 0, "spikey"],
+    ["GOBLIN", "content/ui/spr_environment_icon", 25, 0, 0, "goblin"],
+    ["PIRATE", "content/ui/spr_npcs_icon", 50, 0, 0, "pirate_captain"],
+    ["PIGGY", "content/ui/spr_npcs_icon", 50, 0, 0, "green_piggy"]
   ]
 }

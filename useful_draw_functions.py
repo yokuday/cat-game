@@ -18,6 +18,8 @@ RED = pr.Color(255,0,0,255)
 SOFT_GREEN = pr.Color(153, 255, 153, 255)
 SOFT_RED = pr.Color(255, 102, 102, 255)
 
+LIGHT_BLUE = pr.Color(173, 216, 230, 180)
+
 
 def blend_colors(color1: pr.Color, color2: pr.Color, t: float) -> pr.Color:
     clamp = lambda x: max(0.0, min(1.0, x))  # Ensure t stays between 0 and 1

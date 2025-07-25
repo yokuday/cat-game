@@ -1,7 +1,7 @@
 from ui_menu_files.sprite_manager import *
 from useful_draw_functions import *
 
-import json
+import json, math
 
 
 class ShopSection:
@@ -14,6 +14,12 @@ class ShopSection:
         self.p = p
         self.general_info = ui.general_info
         self.font = ui.font
+
+        self.title_font = pr.load_font_ex("content/Notedry.ttf", 96, None, 0)
+        pr.set_texture_filter(self.title_font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
+
+        self.title_font_background = pr.load_font_ex("content/NotedryBase.ttf", 96, None, 0)
+        pr.set_texture_filter(self.title_font_background.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
 
         self.ui = ui
 
@@ -44,11 +50,31 @@ class ShopSection:
             info = json.load(f)
             f.close()
 
+        file = "content/json_info/npcs.json"
+        with open(file, 'r') as f:
+            character_info = json.load(f)
+            f.close()
+
         self.info = info["shop_contents"]
+        self.animations = {}
+
+        print(character_info)
 
         # load sprites
         for i in range(len(self.info)):
             self.info[i][1] = load_sprite(self.info[i][1] + ".png")
+
+            # load characters idle animation
+            anims = []
+            for character in character_info:
+                if character == self.info[i][5]:
+                    for animation in character_info[character]["animations"]:
+                        if "idle" in animation[0]:
+                            print(f"{character_info[character]['sprite_folder']}/{animation[1]}.png")
+                            tmp = [load_sprite(f"content/{character_info[character]['sprite_folder']}/{animation[1]}.png"),
+                                   animation[2], character_info[character]["extra_info"]["height_multiplier"], 0]  # texture, frame_count, height, current_frame
+                            anims.append(tmp)
+            self.animations[self.info[i][0]] = anims
 
     def step(self, x, y, w, h, mouse_pos):
         p = w // 40
@@ -85,10 +111,19 @@ class ShopSection:
 
                     # check if can buy
                     if ind < len(self.info):
-                        if pr.is_mouse_button_pressed(pr.MouseButton(0)):
-                            # too expensive
-                            if self.general_info["currency"] < self.info[ind][2]:
-                                self.ui.error_shake = 1
+                        # check if its purchased already
+                        if self.info[ind][4] == 0:
+                            if pr.is_mouse_button_pressed(pr.MouseButton(0)):
+                                # too expensive
+                                if self.general_info["currency"] < self.info[ind][2]:
+                                    self.ui.error_shake = 1
+                                else:
+                                    # can afford
+                                    self.ui.success_shake = 1
+
+                                    self.general_info["currency"] -= self.info[ind][2]
+                                    self.info[ind][4] += 1
+                                    self.ui.main.send({"add_npc": self.info[ind][5]})
                 else:
                     self.box_hover_scale[ind] = max(self.box_hover_scale[ind] - 1 / 5, 0)
 
@@ -172,20 +207,43 @@ class ShopSection:
             price = self.info[ind][2]
             required_level = self.info[ind][3]
 
+            amount_bought = self.info[ind][4]
+
             # check if level requirement is gut
             if self.general_info["level"] >= required_level:
                 # title
-                draw_fitted_text(self.font, text, x + w // 2, y + h // 20, w // 1.25, 50, WHITE, max_height=h//5, align="center")
+                draw_fitted_text(self.title_font, text, x + w // 2, y + h // 20, w // 1.25, 50, BLACK, max_height=h//5, align="center")
+                draw_fitted_text(self.title_font_background, text, x + w // 2, y + h // 20, w // 1.25, 50, WHITE,
+                                 max_height=h // 5, align="center")
 
-                # sprite
-                scale = h // sprite.height // 2.5
-                draw_sprite(sprite, x + w // 2, y + h // 2, scale, origin="middle_center")
+                # character sprite
+                if self.animations[text]:
+                    for animation in self.animations[text]:
+                        char_sprite = animation[0]
 
+                        # move animation forward
+                        animation[3] += 1 / 5
+
+                        if animation[3] >= animation[1]:
+                            animation[3] = 0
+
+                        current_frame = math.floor(animation[3])
+
+                        sprite_tint = WHITE
+                        if amount_bought <= 0:
+                            sprite_tint = BLACK
+
+                        scale = h // char_sprite.height * animation[2] * 1.25
+                        draw_sprite(char_sprite, x + w // 2, y + h // 2, scale, origin="middle_center", current_frame=current_frame, frame_count=animation[1], tint=sprite_tint)
+                
                 # price
-                txt = f"${price}"
-                col = SOFT_RED
-                if self.general_info["currency"] >= price:
-                    col = SOFT_GREEN
+                txt = "Purchased"
+                col = BLACK
+                if amount_bought <= 0:
+                    txt = f"${price}"
+                    col = SOFT_RED
+                    if self.general_info["currency"] >= price:
+                        col = SOFT_GREEN
                 draw_fitted_text(self.font, txt, x + w // 2, y + h // 1.3, w // 1.75, 50, col, max_height=h//6, align="center")
             else:
                 rec = pr.Rectangle(x, y, w, h)

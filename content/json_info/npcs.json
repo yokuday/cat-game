@@ -140,5 +140,39 @@
         "offset_y": 7,
         "height_multiplier": 1.0
       }
+  },
+
+
+  "pirate_captain": {
+    "animations": [
+      ["idle", "spr_idle", 5],
+      ["run", "spr_run", 6],
+      ["axe", "spr_attack", 9]
+    ],
+    "sprite_folder": "characters/pirate_captain",
+    "extra_info": {
+        "offset_y": 11,
+        "height_multiplier": 0.5,
+        "can_carry": false,
+        "animation_speed": 6
+    }
+  },
+  "green_piggy": {
+    "animations": [
+      ["idle", "spr_idle", 11],
+      ["run", "spr_run", 6],
+      ["carry", "spr_carry", 6]
+    ],
+    "sprite_folder": "characters/green_piggy",
+    "extra_info": {
+      "offset_y": 12,
+      "height_multiplier": 0.35,
+      "can_action": false,
+      "animation_speed": 5,
+
+      "x_original_scale": -1,
+
+      "spd": 2
+    }
   }
 }

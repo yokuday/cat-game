@@ -15,7 +15,7 @@ class GameUI():
 
         threading.Thread(target=self._listen, daemon=True).start()
 
-        self.game_window = Window()
+        self.game_window = Window(self)
 
         self.socket_info = None
 

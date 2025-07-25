@@ -12,6 +12,8 @@ import win32con
 import win32gui
 import winxpgui
 
+import win32process
+
 import os, sys, json
 
 
@@ -61,7 +63,7 @@ class Window:
         if not above_taskbar:
             self.taskbar_height = 0
 
-        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT)
+        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT | pr.ConfigFlags.FLAG_WINDOW_ALWAYS_RUN)
         pr.init_window(self.width, self.height, "Idle - game")
         pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
 
@@ -72,12 +74,18 @@ class Window:
         win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
                                win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED)
         winxpgui.SetLayeredWindowAttributes(hwnd, win32api.RGB(1, 3, 2), 255, win32con.LWA_COLORKEY)
+        process_handle = win32api.GetCurrentProcess()
+        #win32process.SetPriorityClass(process_handle, win32process.IDLE_PRIORITY_CLASS)
 
         # hide window from taskbar
         hide_from_taskbar(hwnd)
         set_topmost(hwnd)
 
         self.top_most = enforce_topmost(hwnd)
+
+        # Set to lowest priority
+        # handle = ctypes.windll.kernel32.GetCurrentProcess()
+        # ctypes.windll.kernel32.SetPriorityClass(handle, IDLE_PRIORITY_CLASS)
 
         # TEST functions for draw events
         self.test_functions = Functions(self.width, self.height)

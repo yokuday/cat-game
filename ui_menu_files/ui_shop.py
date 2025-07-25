@@ -10,9 +10,11 @@ import math
 
 
 class UI:
-    def __init__(self, w, h, font):
+    def __init__(self, w, h, font, main):
         self.w = w
         self.h = h
+
+        self.main = main
 
         self.p = 10
 
@@ -37,6 +39,7 @@ class UI:
         self.border_thickness = w // 200
         self.screen_shake = 0
         self.error_shake = 0
+        self.success_shake = 0
 
         self.font = font
 
@@ -55,7 +58,7 @@ class UI:
         self.render_texture = None
 
     def step(self):
-        if not self.show:
+        if self.show:
             self.show_scale = min(self.show_scale + 1 / 10, 1)
         else:
             self.show_scale = max(self.show_scale - 1 / 10, 0)
@@ -72,9 +75,24 @@ class UI:
             pr.rl_translatef(-self.w / 2, -self.h / 2, 0)
 
         # error shake
-        if 1 >= self.error_shake > 0:
+        if 1 >= self.error_shake > 0 >= self.success_shake:
             pr.rl_push_matrix()
             pr.rl_translatef(math.sin(self.error_shake * math.pi * 2) * self.w // 100, 0, 0)
+
+            if self.render_texture:
+                pr.unload_render_texture(self.render_texture)
+
+            self.render_texture = pr.load_render_texture(self.w, self.h)
+            pr.begin_texture_mode(self.render_texture)
+
+        # success shake
+        if 1 >= self.success_shake > 0:
+            val = 4 * self.success_shake * (1 - self.success_shake) / 50
+
+            pr.rl_push_matrix()
+            pr.rl_translatef(self.w / 2, self.h / 2, 0)
+            pr.rl_scalef(self.show_scale * (1 + val), self.show_scale * (1 + val), 1)
+            pr.rl_translatef(-self.w / 2, -self.h / 2, 0)
 
             if self.render_texture:
                 pr.unload_render_texture(self.render_texture)
@@ -103,7 +121,7 @@ class UI:
         if 1 > self.show_scale > 0:
             pr.rl_pop_matrix()
 
-        if 1 >= self.error_shake > 0:
+        if 1 >= self.error_shake > 0 >= self.success_shake:
             self.error_shake -= 1 / 15
             pr.rl_pop_matrix()
             pr.end_texture_mode()
@@ -121,9 +139,28 @@ class UI:
             except:
                 pass
         else:
-            if self.render_texture:
-                pr.unload_render_texture(self.render_texture)
-                self.render_texture = None
+            if self.success_shake <= 0:
+                if self.render_texture:
+                    pr.unload_render_texture(self.render_texture)
+                    self.render_texture = None
+
+        if 1 >= self.success_shake > 0:
+            self.success_shake -= 1 / 10
+            pr.rl_pop_matrix()
+            pr.end_texture_mode()
+
+            try:
+                if self.success_shake > 0.5:
+                    green = int(50 * (0.5 - (self.success_shake - 0.5)) * 2)
+                else:
+                    green = 50 - int(50 * (0.5 - self.success_shake) * 2)
+
+                red_tint = pr.Color(min(255 - green, 255), 255, min(255 - green, 255), 255)
+                pr.draw_texture_rec(self.render_texture.texture,
+                                    pr.Rectangle(0, 0, self.render_texture.texture.width, -self.render_texture.texture.height),
+                                    pr.Vector2(0, 0), red_tint)
+            except:
+                pass
 
     def header_section(self, x, y, w, h):
         p = w // 4

@@ -16,10 +16,13 @@ class NPCManager:
 
         self.npcs = [
             self.create_npc(npc_type="storage_box", coords=[self.w // 2, self.h]),
+            self.create_npc(npc_type="longy")
         ]
 
-        for _ in range(8):
-            self.npcs.append(self.create_npc(npc_type=random.choice(["spikey", "shortie", "moppie", "longy", "curly", "bowly"])))
+        # for _ in range(7):
+        #     self.npcs.append(self.create_npc(npc_type=random.choice(["pirate_captain", "green_piggy"])))
+
+        self.item_count = 0
 
     def create_npc(self, npc_type="goblin", coords=None):
         extra_info = self.animations.animation_info[npc_type]["extra_info"]
@@ -51,12 +54,16 @@ class NPCManager:
                 "xscale": 1,
                 "id": uuid.uuid4(),
 
-                "spd": self.w // 450,  # MOVING spd per frame
+                "spd": self.w // 450 * extra_info.get("spd", 1),  # MOVING spd per frame
+                "can_carry": extra_info.get("can_carry", True),
+                "can_action": extra_info.get("can_action", True),
 
                 "height": extra_info.get("height", self.h // 2),
                 "offset_y": extra_info.get("offset_y", 0),
                 "origin_point": extra_info.get("origin_point", "middle-center"),
                 "scale": extra_info.get("scale", 1),
+
+                "x_original_scale": extra_info.get("x_original_scale", 1),
 
                 "rotation": 0,
                 "alpha": 1,
@@ -113,50 +120,54 @@ class NPCManager:
                 actions["action_cooldown"] -= 1
                 return 0
 
-            # find floating items
-            storage = None
-            potential_items = []
+            # check if npc can CARRY ITEMS
+            if info["can_carry"]:
+                # find floating items
+                storage = None
+                potential_items = []
 
-            for obj in self.npcs:
-                if obj["parent_type"] == "storage":
-                    storage = obj
+                for obj in self.npcs:
+                    if obj["parent_type"] == "storage":
+                        storage = obj
 
-                if obj["parent_type"] == "item":
-                    if obj["custom_class"].occupied is None:
-                        potential_items.append(obj)
+                    if obj["parent_type"] == "item":
+                        if obj["custom_class"].occupied is None:
+                            potential_items.append(obj)
 
-            # storage object exists, lets fucking go
-            if storage is not None:
-                if potential_items:
-                    closest_items = sorted(potential_items, key=lambda t: abs(x - t["general_info"]["x"]))[:5]
-                    actions["pathfinding_values"] = []
-                    for item in closest_items:
-                        actions["pathfinding_values"].append([item["general_info"]["x"], item, False])
-                        item["custom_class"].occupied = npc
+                # storage object exists, lets fucking go
+                if storage is not None:
+                    if potential_items:
+                        closest_items = sorted(potential_items, key=lambda t: abs(x - t["general_info"]["x"]))[:5]
+                        actions["pathfinding_values"] = []
+                        for item in closest_items:
+                            actions["pathfinding_values"].append([item["general_info"]["x"], item, False])
+                            item["custom_class"].occupied = npc
 
-                    # after appending all items, append storage
-                    actions["pathfinding_values"].append([storage["general_info"]["x"], storage, False])
-                    actions["action_type"] = "carrying"
+                        # after appending all items, append storage
+                        actions["pathfinding_values"].append([storage["general_info"]["x"], storage, False])
+                        actions["action_type"] = "carrying"
+
+                        return 0
+
+            # check if item limit is not reached
+            if self.item_count < 30 and info["can_action"]:
+                # find tree
+                potential_trees = []
+                for potential_tree in self.npcs:
+                    if potential_tree["parent_type"] == "tree":
+                        # check if tree is already occupied
+                        if potential_tree["custom_class"].occupied is None:
+                            potential_trees.append(potential_tree)
+
+                # if some trees are available, choose the closest one and make it occupied
+                if potential_trees:
+                    tree = min(potential_trees, key=lambda t: abs(x - t["general_info"]["x"]))
+                    actions["pathfinding_values"] = [[tree["general_info"]["x"], tree, False]]  # x, tree
+                    tree["custom_class"].occupied = npc
+
+                    actions["action_type"] = "chopping"
 
                     return 0
-
-            # find tree
-            potential_trees = []
-            for potential_tree in self.npcs:
-                if potential_tree["parent_type"] == "tree":
-                    # check if tree is already occupied
-                    if potential_tree["custom_class"].occupied is None:
-                        potential_trees.append(potential_tree)
-
-            # if some trees are available, choose the closest one and make it occupied
-            if potential_trees:
-                tree = min(potential_trees, key=lambda t: abs(x - t["general_info"]["x"]))
-                actions["pathfinding_values"] = [[tree["general_info"]["x"], tree, False]]  # x, tree
-                tree["custom_class"].occupied = npc
-
-                actions["action_type"] = "chopping"
-
-                return 0
 
             # if no action was found, set an action cooldown
             actions["action_cooldown"] = random.randint(10, 60)

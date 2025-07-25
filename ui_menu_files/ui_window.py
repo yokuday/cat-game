@@ -9,7 +9,7 @@ from ui_shop import UI
 
 
 class Window:
-    def __init__(self):
+    def __init__(self, main):
         monitors = get_monitors()
         primary = next((m for m in monitors if m.is_primary), monitors[0])
 
@@ -19,9 +19,11 @@ class Window:
         self.height = int(self.max_height // 1.75)
         self.width = self.height
 
+        self.main = main
+
         self.y_offset = 0
 
-        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST)
+        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT)
         pr.init_window(self.width, self.height, "Idle - game - ui_window")
         pr.set_window_position((self.max_width - self.width) // 2, (self.max_height - self.height) // 2)
 
@@ -45,7 +47,7 @@ class Window:
         self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
         pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
 
-        self.ui = UI(self.width, self.height, self.font)
+        self.ui = UI(self.width, self.height, self.font, self.main)
 
     def step(self, socket_info):
         if socket_info != self.socket_info:
@@ -63,6 +65,9 @@ class Window:
 
                 if self.socket_info.get("current_level", None):
                     self.ui.update_info("level", int(self.socket_info.get("current_level", 0)))
+
+                if self.socket_info.get("currency", None):
+                    self.ui.update_info("currency", int(self.socket_info.get("currency", 0)))
 
                 if self.socket_info.get("sold", None):
                     self.ui.convert_item(self.socket_info.get("sold", None))

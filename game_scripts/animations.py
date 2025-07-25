@@ -139,7 +139,7 @@ class GameAnimations:
             # source rectangle
             source_rect = pr.Rectangle(
                 anim_info["current_frame"] * frame_width, 0,
-                frame_width * general_info.get("xscale", 1),  # flip width if xscale is -1
+                frame_width * general_info.get("xscale", 1) * general_info.get("x_original_scale", 1),  # flip width if xscale is -1
                 current_anim["texture"].height
             )
 

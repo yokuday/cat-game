@@ -13,11 +13,12 @@ class PlayerInfo:
         except:
             self.info = {
                 "current_level": 0,
-                "current_exp": 0
+                "current_exp": 0,
+                "currency": 100
             }
 
         # send current level
-        self.ui_window.prepare_to_send({"current_level": self.info["current_level"]})
+        self.ui_window.prepare_to_send({"current_level": self.info["current_level"], "currency": self.info["currency"]})
 
         self.info["required_exp"] = self.get_exp_requirement()
 
