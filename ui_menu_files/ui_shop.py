@@ -2,7 +2,8 @@ import pyray as pr
 from sprite_manager import *
 from pynput.mouse import Controller
 
-from main_sections.shop_section import ShopSection
+from ui_menu_files.main_sections.shop_section import ShopSection
+from ui_menu_files.main_sections.biome_section import BiomeSection
 
 from useful_draw_functions import *
 
@@ -51,9 +52,10 @@ class UI:
             "home": [load_sprite("content/ui/spr_home_icon.png"), 0, 0]
         }
         self.icon_order = ["shop", "npc_manager", "environment", "home"]
-        self.chosen_main_section = 0
+        self.chosen_main_section = 2
 
         self.shop_section = ShopSection(self.border_thickness, self.main_width, h, self.p, self)
+        self.biome_section = BiomeSection(self.border_thickness, self.main_width, h, self.p, self)
 
         self.render_texture = None
 
@@ -181,6 +183,8 @@ class UI:
         mouse_pos = self.get_mouse_pos()
         if self.chosen_main_section == 0:
             self.shop_section.step(x, y, w * self.show_scale, h * self.show_scale, mouse_pos)
+        if self.chosen_main_section == 2:
+            self.biome_section.step(x, y, w, h, mouse_pos)
 
     def button_section(self, x, y, w, h):
         bg = pr.Rectangle(x, y, w, h)

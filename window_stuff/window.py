@@ -63,7 +63,7 @@ class Window:
         if not above_taskbar:
             self.taskbar_height = 0
 
-        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT | pr.ConfigFlags.FLAG_WINDOW_ALWAYS_RUN)
+        pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT)# | pr.ConfigFlags.FLAG_WINDOW_ALWAYS_RUN)
         pr.init_window(self.width, self.height, "Idle - game")
         pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
 
@@ -98,6 +98,9 @@ class Window:
         pr.begin_drawing()
         pr.clear_background(pr.Color(1, 3, 2, 0))  # Fully transparent background
 
+        # player info
+        self.player_info.step()
+
         # game step
         self.game.step()
 
@@ -122,6 +125,10 @@ class Window:
             #script_path = f"{os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))}/main.py"
             #os.execv(sys.executable, [sys.executable, script_path])
             #os.execv(sys.executable, [sys.executable])   this should work if game is an executable
+
+        #WILL REMOVE, CHEATS
+        if char_pressed == 112:
+            self.player_info.add_exp(99999)
 
         # fps
         self.test_functions.draw_fps()

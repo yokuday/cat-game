@@ -3,13 +3,15 @@ import random, json
 
 
 class GameAnimations:
-    def __init__(self, w, h, y_offset):
+    def __init__(self, w, h, y_offset, player_info):
         self.w = w
         self.h = h
         self.y_offset = y_offset
 
         self.animation_info = {}
         self.initialize_animation_info()
+
+        self.player_info = player_info
 
     def initialize_animation_info(self):
         json_files = [
@@ -135,6 +137,11 @@ class GameAnimations:
             change_scale = general_info["change_scale"]
 
             frame_width = current_anim["frame_width"]
+
+            # biome change scale
+            if self.player_info.biome_change:
+                if npc["parent_type"] == "node" or npc["parent_type"] == "item":
+                    change_scale = change_scale * self.player_info.biome_scale
 
             # source rectangle
             source_rect = pr.Rectangle(

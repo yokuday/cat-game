@@ -40,7 +40,7 @@ def hide_from_taskbar(hw):
 def set_topmost(hw):
     try:
         win32gui.SetWindowPos(hw, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)
-        set_window_band(hw)
+        #set_window_band(hw)
     except win32gui.error:
         print("Error while move window on top")
 
@@ -123,8 +123,8 @@ def enforce_topmost(hwnd):
                 win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0,
                                       win32con.SWP_NOMOVE | win32con.SWP_NOSIZE | win32con.SWP_NOACTIVATE | win32con.SWP_SHOWWINDOW)
 
-                ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0013)
-                ctypes.windll.user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0013)
+                # ctypes.windll.user32.SetWindowPos(hwnd, 0, 0, 0, 0, 0, 0x0013)
+                # ctypes.windll.user32.SetWindowPos(hwnd, -1, 0, 0, 0, 0, 0x0013)
 
             except:
                 pass

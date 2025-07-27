@@ -66,6 +66,9 @@ class Window:
                 if self.socket_info.get("current_level", None):
                     self.ui.update_info("level", int(self.socket_info.get("current_level", 0)))
 
+                if self.socket_info.get("current_biome", None):
+                    self.ui.biome_section.current_biome = self.socket_info.get("current_biome", "forest")
+
                 if self.socket_info.get("currency", None):
                     self.ui.update_info("currency", int(self.socket_info.get("currency", 0)))
 

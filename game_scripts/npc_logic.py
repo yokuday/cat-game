@@ -32,7 +32,7 @@ class NPCManager:
             coords = [random.randint(200, self.w - 100), self.h]
 
         custom_classes = {
-            "tree": Tree(self.w, self.h),
+            "node": Tree(self.w, self.h),
             "item": Item(self.w, self.h),
             "storage": Storage(self.w, self.h, self.player_info, self.y_offset)
         }
@@ -114,6 +114,11 @@ class NPCManager:
 
         pathfinding = actions["pathfinding_values"]
 
+        # check if biome check is in place
+        if self.player_info.biome_change:
+            self.reset_actions(actions)
+            return "biome change in place"
+
         # check if npc can start new action
         if pathfinding is None and not actions["doing_action"]:
             if actions["action_cooldown"] > 0:
@@ -154,7 +159,7 @@ class NPCManager:
                 # find tree
                 potential_trees = []
                 for potential_tree in self.npcs:
-                    if potential_tree["parent_type"] == "tree":
+                    if potential_tree["parent_type"] == "node":
                         # check if tree is already occupied
                         if potential_tree["custom_class"].occupied is None:
                             potential_trees.append(potential_tree)

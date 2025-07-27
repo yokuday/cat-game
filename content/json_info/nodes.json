@@ -22,7 +22,7 @@
 
       "origin_point": "middle-bottom",
       "animation_speed": 8,
-      "parent_type": "tree"
+      "parent_type": "node"
     }
   },
   "birch_tree": {
@@ -35,7 +35,7 @@
 
       "origin_point": "middle-bottom",
       "animation_speed": 8,
-      "parent_type": "tree"
+      "parent_type": "node"
     }
   },
   "stone_block": {
@@ -48,7 +48,7 @@
 
       "origin_point": "middle-bottom",
       "animation_speed": -1,
-      "parent_type": "tree"
+      "parent_type": "node"
     }
   }
 }

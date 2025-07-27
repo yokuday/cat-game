@@ -5,25 +5,27 @@ import math, random
 
 
 class VisualEffects:
-    def __init__(self, w, h):
+    def __init__(self, w, h, player_info):
         self.w = w
         self.h = h
+
+        self.player_info = player_info
 
         self.scale = 0
         self.current_effects = [""]
         self.next_effects = None
 
-        self.size = h // 75
+        self.size = max(int(h // 75), 1)
 
         image = pr.gen_image_color(self.size, self.size, WHITE)
         self.pixel = pr.load_texture_from_image(image)
         pr.unload_image(image)
 
-        image = pr.gen_image_color(int(self.size // 2), int(self.size * 3), WHITE)
+        image = pr.gen_image_color(max(int(self.size // 2), 1), int(self.size * 3), WHITE)
         self.tall_pixel = pr.load_texture_from_image(image)
         pr.unload_image(image)
 
-        self.max_effect_count = 30
+        self.max_effect_count = 50
         self.effect_count = self.max_effect_count
 
         # setu fireflies
@@ -33,19 +35,40 @@ class VisualEffects:
                                       random.randint(30, 180), random.randrange(1, 2), random.random() * math.pi, random.random()])  # [x, y], target [x, y], decide different target, spd, glow, glow_offset
 
         self.rain_info = []
-        for _ in range(self.max_effect_count * 2):  # More raindrops than fireflies
+        for _ in range(self.max_effect_count):
             self.rain_info.append([
+                random.randint(-50, w + 50),
+                random.randint(-200, h),
+                random.uniform(self.size, self.size * 2) * 2,
+                random.uniform(0.5, 1.2),
+                random.uniform(-15, -25)
+            ])  # [x, y, speed, scale, rotation]
+
+        self.snow_info = []
+        for _ in range(self.max_effect_count * 2):
+            self.snow_info.append([
                 random.randint(-50, w + 50),  # x position
                 random.randint(-200, h),  # y position
-                random.uniform(self.size, self.size * 2) / 3,  # fall speed
-                random.uniform(0.5, 1.2),  # scale multiplier
-                random.uniform(-15, -25)  # rotation angle (negative for downward slant)
-            ])  # [x, y, speed, scale, rotation]
+                random.uniform(self.size, self.size * 3) / 4,
+                random.uniform(0.75, 2.5),
+                random.uniform(-0.3, 0.3)  # horizontal drift
+            ])
 
         self.effects = {
             "fireflies": self.fireflies,
-            "rain": self.rain
+            "rain": self.rain,
+            "snow": self.snow
         }
+
+        self.biome_effects = {
+            "forest": ["rain"],
+            "icy_mountain": ["snow"],
+            "volcano": [""],
+            "ocean": [""]
+        }
+
+        # set initial effect for biome
+        self.set_effects(self.player_info.info["current_biome"])
 
         self.variable_pi = 0
 
@@ -94,15 +117,15 @@ class VisualEffects:
             val = abs(math.sin(self.variable_pi + i))
             val2 = math.sin(self.variable_pi * 8 + i + glow * self.size) * self.size * glow / 3
 
-            pr.draw_texture(self.pixel, x + int(val2), y, blend_colors(BLACK, YELLOW, val))
+            pr.draw_texture_ex(self.pixel, pr.Vector2(x + int(val2), y), 0, self.scale, blend_colors(BLACK, YELLOW, val))
 
     def rain(self):
         for i in range(self.effect_count):
             info = self.rain_info[i]
 
             # Update position
-            info[1] += info[2]  # y position falls based on speed
-            info[0] += info[2] * 0.2  # slight horizontal drift
+            info[1] += info[2]
+            info[0] += info[2] * 0.2
 
             # Reset raindrop when it goes off screen
             if info[1] > self.h + 50 or info[0] > self.w + 100:
@@ -111,10 +134,27 @@ class VisualEffects:
 
             x = int(info[0])
             y = int(info[1])
-            scale = info[3]
             rotation = info[4]
 
-            pr.draw_texture_ex(self.tall_pixel, pr.Vector2(x, y), rotation, 1, LIGHT_BLUE)
+            pr.draw_texture_ex(self.tall_pixel, pr.Vector2(x, y), rotation, self.scale, LIGHT_BLUE)
+
+    def snow(self):
+        for i in range(self.effect_count * 2):
+            info = self.snow_info[i]
+
+            info[1] += info[2]
+            info[0] += info[2] * info[4]
+
+            if info[1] > self.h + 50 or info[0] > self.w + 100 or info[0] < -100:
+                info[0] = random.randint(-100, self.w + 50)
+                info[1] = random.randint(-200, -50)
+
+            x = int(info[0])
+            y = int(info[1])
+            scale = info[3]
+            rotation = y * math.copysign(1, info[4])
+
+            pr.draw_texture_ex(self.pixel, pr.Vector2(x, y), rotation, self.scale * scale, WHITE)
 
     def lengthdir_x(self, length, player_pos, target_pos):
         dx = target_pos[0] - player_pos[0]
@@ -137,3 +177,6 @@ class VisualEffects:
             return 0
 
         return (dy / distance) * length
+
+    def set_effects(self, biome="forest"):
+        self.next_effects = self.biome_effects[biome]

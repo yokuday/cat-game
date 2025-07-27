@@ -14,13 +14,22 @@ class PlayerInfo:
             self.info = {
                 "current_level": 0,
                 "current_exp": 0,
-                "currency": 100
+                "currency": 100,
+
+                "current_biome": "forest"
             }
 
-        # send current level
-        self.ui_window.prepare_to_send({"current_level": self.info["current_level"], "currency": self.info["currency"]})
+        # send current info
+        self.ui_window.prepare_to_send({"current_level": self.info["current_level"], "currency": self.info["currency"],
+                                        "current_biome": self.info["current_biome"]})
 
         self.info["required_exp"] = self.get_exp_requirement()
+
+        # biome animation
+        self.next_biome = None
+        self.biome_scale = 0
+        self.biome_change = False
+        self.biome_destroy_objects = False
 
     def get_exp_requirement(self):
         level = self.info["current_level"]
@@ -35,9 +44,30 @@ class PlayerInfo:
     def add_exp(self, amount):
         self.info["current_exp"] += amount
 
-        if self.info["current_exp"] >= self.info["required_exp"]:
-            self.info["current_exp"] -= self.info["required_exp"]
-            self.info["current_level"] += 1
-            self.info["required_exp"] = self.get_exp_requirement()
+        while True:
+            if self.info["current_exp"] >= self.info["required_exp"]:
+                self.info["current_exp"] -= self.info["required_exp"]
+                self.info["current_level"] += 1
+                self.info["required_exp"] = self.get_exp_requirement()
 
-            self.ui_window.prepare_to_send({"current_level": self.info["current_level"]})
+                self.ui_window.prepare_to_send({"current_level": self.info["current_level"]})
+            else:
+                break
+
+    def step(self):
+        # biome changing
+        if self.next_biome:
+            self.biome_change = True
+
+            if self.biome_scale > 0:
+                self.biome_scale = max(self.biome_scale - 1 / 15, 0)
+            else:
+                self.info["current_biome"] = self.next_biome
+                self.next_biome = None
+                self.biome_destroy_objects = True  # destroy all biome related objects
+        else:
+            self.biome_destroy_objects = False
+            if self.biome_scale < 1:
+                self.biome_scale = min(self.biome_scale + 1 / 15, 1)
+            else:
+                self.biome_change = False

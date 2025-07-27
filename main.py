@@ -18,7 +18,12 @@ while not pr.window_should_close():
         if ui_data.get("close_window", 0) == 1:
             pr.close_window()
         if ui_data.get("add_npc", None):
-            npc_manager.npcs.append(npc_manager.create_npc(npc_type=ui_data.get("add_npc")))
+            npc_manager.npcs.insert(0, npc_manager.create_npc(npc_type=ui_data.get("add_npc")))
+        if ui_data.get("current_biome", None):
+            if (ui_data.get("current_biome", "forest") != game_window.player_info.info["current_biome"] or
+                    (game_window.player_info.next_biome is not None and game_window.player_info.next_biome != ui_data.get("current_biome", "forest"))):
+                game_window.player_info.next_biome = ui_data.get("current_biome", "forest")  # change biome
+                game_window.game.effects.set_effects(ui_data.get("current_biome", "forest"))  # reset effects
 
     game_window.main_step()
 

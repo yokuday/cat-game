@@ -18,7 +18,8 @@ RED = pr.Color(255,0,0,255)
 SOFT_GREEN = pr.Color(153, 255, 153, 255)
 SOFT_RED = pr.Color(255, 102, 102, 255)
 
-LIGHT_BLUE = pr.Color(173, 216, 230, 180)
+LIGHT_BLUE = pr.Color(173, 216, 230, 255)
+BLUE = pr.Color(0, 128, 255, 255)
 
 
 def blend_colors(color1: pr.Color, color2: pr.Color, t: float) -> pr.Color:
@@ -42,6 +43,7 @@ def draw_fitted_text(font, text, x, y, max_width, initial_size, color, max_heigh
     while text_width > max_width and size > 1:
         size -= 1
         text_metrics = pr.measure_text_ex(font, text, size, 0)
+        text_height = text_metrics.y
         text_width = text_metrics.x
 
     if max_height > 0:
@@ -49,6 +51,7 @@ def draw_fitted_text(font, text, x, y, max_width, initial_size, color, max_heigh
             size -= 1
             text_metrics = pr.measure_text_ex(font, text, size, 0)
             text_height = text_metrics.y
+            text_width = text_metrics.x
 
     if align == "right":
         x -= text_width

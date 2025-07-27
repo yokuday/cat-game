@@ -22,11 +22,10 @@ class Game:
         pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
 
         # init everything
-        self.animations = GameAnimations(w, h, self.y_offset)
+        self.animations = GameAnimations(w, h, self.y_offset, player_info)
         self.npc_manager = NPCManager(self.animations, w, h, player_info, self.y_offset)
         self.ui = MainUI(w, h, player_info, ui_window, self.font)
-        self.effects = VisualEffects(w, h)
-        self.effects.next_effects = ["fireflies", "rain"]
+        self.effects = VisualEffects(w, h, player_info)
 
     def step(self):
         npcs = self.npc_manager.npcs
@@ -51,8 +50,14 @@ class Game:
                 self.npc_manager.idle(npc)
                 self.npc_manager.action(npc)
 
-            if npc["parent_type"] == "tree":
+            if npc["parent_type"] == "node":
                 tree_count += 1
+
+            if npc["parent_type"] == "node" or npc["parent_type"] == "item":
+                # check if object has to be terminated
+                if self.player_info.biome_destroy_objects:
+                    npcs.pop(i)
+                    continue
 
             # custom class stuff
             if npc["custom_class"]:
@@ -77,18 +82,22 @@ class Game:
             self.animations.update_animation(npc)
             self.animations.draw_npc(npc)
 
-            # draw visual effects
-            self.effects.step()
-
             # post step, if item has it
             if npc["custom_class"]:
                 if hasattr(npc["custom_class"], "post_step"):
                     npc["custom_class"].post_step(npc)
 
+        # draw visual effects
+        self.effects.step()
+
         # node stuff
-        if tree_count < 10:
-            if random.random() <= 0.02:
-                npcs.append(self.npc_manager.create_npc(random.choice(["oak_tree", "birch_tree"])))
+        if not self.player_info.biome_change:
+            if tree_count < 10:
+                if random.random() >= 0.9 + tree_count / 60:
+                    if self.player_info.info["current_biome"] == "forest":
+                        npcs.append(self.npc_manager.create_npc("oak_tree"))
+                    if self.player_info.info["current_biome"] == "icy_mountain":
+                        npcs.append(self.npc_manager.create_npc("birch_tree"))
 
         # check if there are items to spawn
         # also check if its allowed to create a new item, aka not over item limit
