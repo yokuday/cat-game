@@ -31,8 +31,13 @@ class VisualEffects:
         # setu fireflies
         self.firefly_info = []
         for _ in range(self.max_effect_count):
-            self.firefly_info.append([[random.randint(0, w), random.randint(0, h)], [random.randint(0, w), random.randint(0, h)],
-                                      random.randint(30, 180), random.randrange(1, 2), random.random() * math.pi, random.random()])  # [x, y], target [x, y], decide different target, spd, glow, glow_offset
+            self.firefly_info.append([
+                [random.randint(0, w), random.randint(0, h)],
+                [random.randint(0, w), random.randint(0, h)],
+                random.randint(30, 180),
+                random.randrange(self.size, self.size * 10),
+                random.random() * math.pi, random.random()
+            ])  # [x, y], target [x, y], decide different target, spd, glow, glow_offset
 
         self.rain_info = []
         for _ in range(self.max_effect_count):
@@ -49,21 +54,33 @@ class VisualEffects:
             self.snow_info.append([
                 random.randint(-50, w + 50),  # x position
                 random.randint(-200, h),  # y position
-                random.uniform(self.size, self.size * 3) / 4,
+                random.uniform(self.size, self.size * 3) / 8,  # speed
                 random.uniform(0.75, 2.5),
                 random.uniform(-0.3, 0.3)  # horizontal drift
+            ])
+
+        # VOLCANO
+        self.lava_pops_info = []
+        for _ in range(self.max_effect_count):
+            self.lava_pops_info.append([
+                random.randint(-50, w + 50),  # x position
+                random.randint(h + self.size, h + self.size * 4),  # y position
+                random.uniform(self.size / 2, self.size),  # size
+                random.uniform(self.size, self.size * 10),  # height speed
+                random.uniform(-1, 1)  # horizontal drift
             ])
 
         self.effects = {
             "fireflies": self.fireflies,
             "rain": self.rain,
-            "snow": self.snow
+            "snow": self.snow,
+            "lava pops": self.lava_pops
         }
 
         self.biome_effects = {
-            "forest": ["rain"],
+            "forest": ["rain", "fireflies"],
             "icy_mountain": ["snow"],
-            "volcano": [""],
+            "volcano": ["lava pops"],
             "ocean": [""]
         }
 
@@ -155,6 +172,29 @@ class VisualEffects:
             rotation = y * math.copysign(1, info[4])
 
             pr.draw_texture_ex(self.pixel, pr.Vector2(x, y), rotation, self.scale * scale, WHITE)
+
+    def lava_pops(self):
+        for i in range(self.effect_count // 2):
+            info = self.lava_pops_info[i]
+
+            info[0] += self.size * info[4]
+            info[1] -= info[3] / 5
+
+            info[3] -= self.size / 5
+
+            if info[1] > self.h + self.size * 10:
+                info[0] = random.randint(-50, self.w + 50)
+                info[1] = random.randint(self.h + self.size, self.h + self.size * 4)
+                info[3] = random.uniform(self.size, self.size * 10)
+
+            x = int(info[0])
+            y = int(info[1])
+            scale = info[2]
+            rotation = x * 5
+
+            col = blend_colors(ORANGE, RED, abs(info[4]))
+
+            pr.draw_texture_ex(self.pixel, pr.Vector2(x, y), rotation, self.scale * scale, col)
 
     def lengthdir_x(self, length, player_pos, target_pos):
         dx = target_pos[0] - player_pos[0]

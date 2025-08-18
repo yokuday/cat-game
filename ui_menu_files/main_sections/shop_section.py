@@ -1,4 +1,5 @@
-from ui_menu_files.sprite_manager import *
+from ui_menu_files.main_sections.sprite_manager import *
+from ui_menu_files.main_sections.scrollbar import Scrollbar
 from useful_draw_functions import *
 
 import json, math
@@ -6,8 +7,8 @@ import json, math
 
 class ShopSection:
     def __init__(self, border_thickness, w, window_h, p, ui):
-        self.row_count = 4
-        self.column_count = 2
+        self.row_count = 6
+        self.column_count = 3
 
         self.box_hover_scale = [0 for _ in range(self.row_count * self.column_count)]
 
@@ -28,16 +29,7 @@ class ShopSection:
         self.border_thickness = border_thickness
 
         # scroll bar stuff
-        self.scroll_bar_width = w // 30
-        self.scroll_bar_height = 0.2
-        self.scroll = 0  # 0 to 1
-        self.scroll_previous = self.scroll
-
-        self.scroll_hover = 0  # check hover
-
-        self.scroll_hold = 0
-        self.scroll_clicked_inside_wheel = False
-        self.mouse_previous_y = 0
+        self.scrollbar = Scrollbar(w, border_thickness, self.row_count)
 
         # sprite stuff
         self.icons = {
@@ -76,20 +68,28 @@ class ShopSection:
                             anims.append(tmp)
             self.animations[self.info[i][0]] = anims
 
+        # some animations for info
+        self.info_anim = []
+        for i in range(len(self.info)):
+            self.info_anim.append([0, 0])  # switch animation, switch hover
+
     def step(self, x, y, w, h, mouse_pos):
+        scroll_bar_width = self.scrollbar.scroll_bar_width
+        scroll_bar_height = self.scrollbar.scroll_bar_height
+
         p = w // 40
-        x = int(x + p - self.scroll_bar_width)
+        x = int(x + p - scroll_bar_width)
         y = int(y + p)
         w = int(w - p * 2)
         h = int(h - p * 2)
 
-        box_width = w // 1.4 // self.column_count
-        box_height = box_width * 1.25
+        box_width = int(w // 1.4 // self.column_count * 1.075)
+        box_height = box_width * 1.1
 
-        box_jump_height = box_height * 1.2
-        total_space_taken = max(box_jump_height * self.row_count - h, 0)
+        box_jump_height = box_height * 1.125
+        total_space_taken = max(box_jump_height * self.row_count - h + self.border_thickness, 0)
 
-        offset_y = total_space_taken * self.get_scroll_value() / (1 - self.scroll_bar_height)
+        offset_y = total_space_taken * self.scrollbar.get_scroll_value() / (1 - scroll_bar_height)
 
         # fucking LOVE scissor mode
         pr.begin_scissor_mode(x, y, w, h)
@@ -99,20 +99,20 @@ class ShopSection:
             for j in range(self.column_count):
                 ind = j + i * self.column_count
 
-                box_x = x + w // (self.column_count + 2) * (j*1.8 + 1) - box_width // 2
+                box_x = x + w // (self.column_count + 2) * (j*1.8 + 1) // 1.25 - box_width // 2 // 1.5
                 box_y = y - offset_y + (box_jump_height * i) + p
 
                 rec = pr.Rectangle(box_x, box_y, box_width, box_height)
 
                 # check hover
-                col = blend_colors(GRAY, LIGHTISH_GRAY, self.box_hover_scale[ind])
+                col = blend_colors(LIGHT_GRAY, LIGHTISH_GRAY, self.box_hover_scale[ind])
                 if pr.check_collision_point_rec(mouse_pos, rec):
                     self.box_hover_scale[ind] = min(self.box_hover_scale[ind] + 1 / 5, 1)
 
                     # check if can buy
                     if ind < len(self.info):
-                        # check if its purchased already
-                        if self.info[ind][4] == 0:
+                        # check if its purchased already AND if level requirement is met
+                        if self.info[ind][4] == 0 and self.general_info["level"] >= self.info[ind][3]:
                             if pr.is_mouse_button_pressed(pr.MouseButton(0)):
                                 # too expensive
                                 if self.general_info["currency"] < self.info[ind][2]:
@@ -123,6 +123,8 @@ class ShopSection:
 
                                     self.general_info["currency"] -= self.info[ind][2]
                                     self.info[ind][4] += 1
+
+                                    self.info[ind][6] = 1  # set character to true
                                     self.ui.main.send({"add_npc": self.info[ind][5]})
                 else:
                     self.box_hover_scale[ind] = max(self.box_hover_scale[ind] - 1 / 5, 0)
@@ -130,77 +132,14 @@ class ShopSection:
                 pr.draw_rectangle_rounded(rec, 0.2, -1, col)
                 pr.draw_rectangle_rounded_lines_ex(rec, 0.25, -1, self.border_thickness, BLACK)
 
-                self.draw_box_contents(ind, box_x, box_y, box_width, box_height)
+                self.draw_box_contents(ind, box_x, box_y, box_width, box_height, mouse_pos)
 
         pr.end_scissor_mode()
 
         # scroll bar
-        self.scroll_bar(x, y, w, h, p, mouse_pos)
+        self.scrollbar.scroll_bar(x, y, w, h, p, mouse_pos)
 
-    def scroll_bar(self, x, y, w, h, p, mouse_pos):
-        scroll_width = self.scroll_bar_width
-        scroll_height = h * 0.9
-
-        scroll_x = x + w - scroll_width
-        scroll_bar_y = y + h // 2 - scroll_height // 2
-
-        # scroll bar background
-        background_rec = pr.Rectangle(scroll_x, scroll_bar_y, scroll_width, scroll_height)
-        pr.draw_rectangle_rounded(background_rec, 0.5, -1, LIGHT_GRAY)
-        pr.draw_rectangle_rounded_lines_ex(background_rec, 0.75, -1, self.border_thickness, BLACK)
-
-        # actual scroll bar
-        scroll_height_max = scroll_height
-
-        # change scroll_y based on, well, scroll
-        scroll_y = scroll_bar_y + self.get_scroll_value() * scroll_height
-
-        scroll_height = scroll_height * self.scroll_bar_height
-        rec = pr.Rectangle(scroll_x, scroll_y, scroll_width, scroll_height)
-        pr.draw_rectangle_rounded(rec, 0.5, -1, blend_colors(DARK_GRAY, DARKER_YELLOW, self.scroll_hover))
-        pr.draw_rectangle_rounded_lines_ex(rec, 0.75, -1, self.border_thickness, BLACK)
-
-        # check hover
-        if pr.check_collision_point_rec(mouse_pos, rec) or self.scroll_hold:
-            self.scroll_hover = min(self.scroll_hover + 1 / 5, 1)
-        else:
-            self.scroll_hover = max(self.scroll_hover - 1 / 5, 0)
-
-        # check click / drag
-        if not self.scroll_hold:
-            if pr.is_mouse_button_pressed(pr.MouseButton(0)):
-                if pr.check_collision_point_rec(mouse_pos, background_rec):
-                    self.scroll_hold = 1
-
-                    if pr.check_collision_point_rec(mouse_pos, rec):
-                        self.scroll_clicked_inside_wheel = True
-                        self.scroll_previous = min(max(self.scroll, self.scroll_bar_height / 2), 1-self.scroll_bar_height / 2)
-                        self.mouse_previous_y = mouse_pos[1]
-                    else:
-                        self.scroll = max(min((mouse_pos[1] - scroll_bar_y) / scroll_height_max, 1), 0)
-                        self.scroll_clicked_inside_wheel = False
-        else:
-            if not self.scroll_clicked_inside_wheel:
-                self.scroll = max(min((mouse_pos[1] - scroll_bar_y) / scroll_height_max, 1), 0)
-            else:
-                scroll_previous = max(min((self.mouse_previous_y - scroll_bar_y) / scroll_height_max, 1), 0)
-                scroll_next = max(min((mouse_pos[1] - scroll_bar_y) / scroll_height_max, 1), 0)
-
-                self.scroll = max(min(self.scroll_previous + (scroll_next - scroll_previous), 1), 0)
-
-            if pr.is_mouse_button_released(pr.MouseButton(0)):
-                self.scroll_hold = 0
-
-        # device scrolling + touchpad
-        scroll_value = pr.get_mouse_wheel_move() / 3 / self.row_count
-
-        if not self.scroll_hold:
-            self.scroll = max(min(self.scroll - scroll_value, 1), 0)
-
-    def get_scroll_value(self):
-        return min(max(self.scroll - self.scroll_bar_height / 2, 0), 1 - self.scroll_bar_height)
-
-    def draw_box_contents(self, ind, x, y, w, h):
+    def draw_box_contents(self, ind, x, y, w, h, mouse_pos):
         if ind < len(self.info):
             text = self.info[ind][0]
             sprite = self.info[ind][1]
@@ -208,6 +147,11 @@ class ShopSection:
             required_level = self.info[ind][3]
 
             amount_bought = self.info[ind][4]
+
+            character_added = self.info[ind][6]
+
+            switch_scale = self.info_anim[ind][0]
+            switch_hover = self.info_anim[ind][1]
 
             # check if level requirement is gut
             if self.general_info["level"] >= required_level:
@@ -237,14 +181,67 @@ class ShopSection:
                         draw_sprite(char_sprite, x + w // 2, y + h // 2, scale, origin="middle_center", current_frame=current_frame, frame_count=animation[1], tint=sprite_tint)
                 
                 # price
-                txt = "Purchased"
-                col = BLACK
                 if amount_bought <= 0:
-                    txt = f"${price}"
-                    col = SOFT_RED
+                    a_y = y + h - h // 6
+                    a_h = int(h // 6 * 1.25)
+
+                    # box color if can buy
+                    col = WHITE
                     if self.general_info["currency"] >= price:
-                        col = SOFT_GREEN
-                draw_fitted_text(self.font, txt, x + w // 2, y + h // 1.3, w // 1.75, 50, col, max_height=h//6, align="center")
+                        col = blend_colors(SOFT_GREEN, WHITE, 0.5)
+
+                    bg = pr.Rectangle(x + w // 5, a_y, w // 1.6, a_h)
+                    pr.draw_rectangle_rounded(bg, 0.6, -1, col)
+                    pr.draw_rectangle_rounded_lines_ex(bg, 0.7, -1, self.border_thickness, BLACK)
+
+                    # actual price
+                    txt = f"${price}"
+                    col = BLACK
+                    draw_fitted_text(self.font, txt, x + w // 2, a_y + a_h // 2, w // 1.75, 50, col, max_height=h//6, align="center", center_y=True)
+                else:
+                    # switch
+                    if character_added:
+                        self.info_anim[ind][0] = min(switch_scale + 1 / 10, 1)
+                    else:
+                        self.info_anim[ind][0] = max(switch_scale - 1 / 10, 0)
+
+                    # switch coordinates and info
+                    hh = h // 7
+                    ww = w // 2
+
+                    xx = int(x + w // 2)
+                    yy = int(y + h // 1.2)
+
+                    rad = int(hh // 2.5)
+                    pad = int((hh - rad) // 2)
+
+                    rec = pr.Rectangle(xx - ww // 2, yy - hh // 2, ww, hh)
+
+                    # switch hover and activate / deactivate
+                    if pr.check_collision_point_rec(mouse_pos, rec):
+                        if pr.is_mouse_button_pressed(pr.MouseButton(0)) and (self.info_anim[ind][0] >= 1 or self.info_anim[ind][0] <= 0):
+                            self.info[ind][6] = not character_added
+                            if self.info[ind][6]:
+                                self.ui.main.send({"add_npc": self.info[ind][5]})
+                            else:
+                                self.ui.main.send({"remove_npc": self.info[ind][5]})
+
+                        self.info_anim[ind][1] = min(switch_hover + 1 / 5, 1)
+                    else:
+                        self.info_anim[ind][1] = max(switch_hover - 1 / 5, 0)
+
+                    # draw switch background
+                    col = blend_colors(SOFT_RED, SOFT_GREEN, switch_scale)
+                    pr.draw_rectangle_rounded(rec, 0.75, -1, col)
+                    pr.draw_rectangle_rounded_lines_ex(rec, 0.8, -1, int(hh // 15), BLACK)
+
+                    # draw circle
+                    c_x = int(rad + xx - ww // 2 + pad // 1.25)
+                    extra_x = int(switch_scale * (ww - (rad + pad) * 2))
+
+                    pr.draw_circle(c_x + extra_x, yy, int(rad * (1 + switch_hover / 5)), BLACK)
+                    pr.draw_circle(c_x + extra_x, yy, rad, WHITE)
+
             else:
                 rec = pr.Rectangle(x, y, w, h)
                 pr.draw_rectangle_rounded(rec, 0.2, -1, DARK_GRAY)

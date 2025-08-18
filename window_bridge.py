@@ -9,9 +9,9 @@ from collections import deque
 
 
 class UIBridge:
-    def __init__(self, test_mode, ui_script='ui_menu_files/ui_main.exe', port=22128):
+    def __init__(self, test_mode, ui_script='ui_main.exe', port=22128):
         if test_mode:
-            ui_script = 'ui_menu_files/ui_main.py'
+            ui_script = 'ui_main.py'
 
         self.socket = None
         self.client_socket = None

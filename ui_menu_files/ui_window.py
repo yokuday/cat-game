@@ -4,8 +4,8 @@ import pyray as pr
 import sys
 import winxpgui
 
-from hide_window import *
-from ui_shop import UI
+from ui_menu_files.hide_window import *
+from ui_menu_files.ui_shop import UI
 
 
 class Window:
@@ -16,16 +16,17 @@ class Window:
         self.max_width = primary.width
         self.max_height = primary.height
 
-        self.height = int(self.max_height // 1.75)
-        self.width = self.height
+        self.height = int(self.max_height // 2)
+        self.width = int(self.height * 1.3)
+        self.extra_width = self.width // 10
 
         self.main = main
 
         self.y_offset = 0
 
         pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT)
-        pr.init_window(self.width, self.height, "Idle - game - ui_window")
-        pr.set_window_position((self.max_width - self.width) // 2, (self.max_height - self.height) // 2)
+        pr.init_window(self.width + self.extra_width, self.height, "Idle - game - ui_window")
+        pr.set_window_position((self.max_width - self.width - self.extra_width) // 2, (self.max_height - self.height) // 2)
 
         pr.set_target_fps(60)
 
@@ -39,7 +40,7 @@ class Window:
         hide_from_taskbar(hwnd)
         set_topmost(hwnd)
 
-        #self.top_most = enforce_topmost(hwnd)
+        # self.top_most = enforce_topmost(hwnd)
 
         self.show_window = False
         self.socket_info = {}
@@ -47,7 +48,11 @@ class Window:
         self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
         pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
 
-        self.ui = UI(self.width, self.height, self.font, self.main)
+        self.ui = UI(self.width, self.extra_width, self.height, self.font, self.main)
+
+        # window dragging
+        self.dragging = False
+        self.drag_offset = pr.Vector2(0, 0)
 
     def step(self, socket_info):
         if socket_info != self.socket_info:
@@ -83,3 +88,19 @@ class Window:
         self.ui.step()
 
         pr.end_drawing()
+
+        # window dragging:
+        mouse_pos = pr.get_mouse_position()
+        if pr.is_mouse_button_pressed(pr.MouseButton.MOUSE_BUTTON_RIGHT):
+            self.dragging = True
+            self.drag_offset = mouse_pos
+        elif pr.is_mouse_button_released(pr.MouseButton.MOUSE_BUTTON_RIGHT):
+            self.dragging = False
+
+        # dragging start
+        if self.dragging:
+            current_pos = pr.get_window_position()
+            mouse_delta = pr.vector2_subtract(pr.get_mouse_position(), self.drag_offset)
+            new_x = max(0, min(self.max_width - self.width, int(current_pos.x + mouse_delta.x)))
+            new_y = max(0, min(self.max_height - self.height, int(current_pos.y + mouse_delta.y)))
+            pr.set_window_position(int(new_x), int(new_y))

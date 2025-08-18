@@ -98,6 +98,8 @@ class Game:
                         npcs.append(self.npc_manager.create_npc("oak_tree"))
                     if self.player_info.info["current_biome"] == "icy_mountain":
                         npcs.append(self.npc_manager.create_npc("birch_tree"))
+                    if self.player_info.info["current_biome"] == "volcano":
+                        npcs.append(self.npc_manager.create_npc("volcano_tree"))
 
         # check if there are items to spawn
         # also check if its allowed to create a new item, aka not over item limit

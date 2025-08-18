@@ -64,3 +64,6 @@ class Storage:
         color = pr.Color(255, 255, 255, int(alpha * 255))
         pr.draw_texture_pro(current_anim["texture"], source_rect, dest_rect,
                             origin, angle, color)
+
+    def stub(self):
+        return True

@@ -12,9 +12,9 @@ class PlayerInfo:
                 self.info = json.load(f)
         except:
             self.info = {
-                "current_level": 0,
+                "current_level": 2,
                 "current_exp": 0,
-                "currency": 100,
+                "currency": 200,
 
                 "current_biome": "forest"
             }

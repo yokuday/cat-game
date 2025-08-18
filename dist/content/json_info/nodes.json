@@ -22,7 +22,7 @@
 
       "origin_point": "middle-bottom",
       "animation_speed": 8,
-      "parent_type": "tree"
+      "parent_type": "node"
     }
   },
   "birch_tree": {
@@ -35,7 +35,20 @@
 
       "origin_point": "middle-bottom",
       "animation_speed": 8,
-      "parent_type": "tree"
+      "parent_type": "node"
+    }
+  },
+  "volcano_tree": {
+    "animations": [
+      ["idle", "spr_volcano_tree", 4]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "height_multiplier": 0.5,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": 8,
+      "parent_type": "node"
     }
   },
   "stone_block": {
@@ -48,7 +61,7 @@
 
       "origin_point": "middle-bottom",
       "animation_speed": -1,
-      "parent_type": "tree"
+      "parent_type": "node"
     }
   }
 }
