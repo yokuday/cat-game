@@ -17,7 +17,8 @@ class GameAnimations:
         json_files = [
             "content/json_info/npcs.json",
             "content/json_info/nodes.json",
-            "content/json_info/items.json"
+            "content/json_info/items.json",
+            "content/json_info/shrubs.json"
         ]
 
         self.animation_info = self.load_animation_info(json_files)
@@ -140,7 +141,7 @@ class GameAnimations:
 
             # biome change scale
             if self.player_info.biome_change:
-                if npc["parent_type"] == "node" or npc["parent_type"] == "item":
+                if npc["parent_type"] == "node" or npc["parent_type"] == "item" or npc["parent_type"] == "shrub":
                     change_scale = change_scale * self.player_info.biome_scale
 
             # source rectangle

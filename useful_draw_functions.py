@@ -67,3 +67,9 @@ def draw_fitted_text(font, text, x, y, max_width, initial_size, color, max_heigh
         y -= text_metrics.y / 2
 
     pr.draw_text_pro(font, text, pr.Vector2(x, y), pr.Vector2(0, 0), 0, size, 0, color)
+
+
+def get_coord_values(c):
+    if isinstance(c[0][0], list):
+        return c[0][0][0], c[0][1][0] - c[0][0][0], c[0][0][1], c[0][1][1] - c[0][0][1]
+    return c[0][0], c[1][0] - c[0][0], c[0][1], c[1][1] - c[0][1]

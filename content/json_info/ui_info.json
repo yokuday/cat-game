@@ -7,6 +7,10 @@
     ["PIGGY", "content/ui/spr_npcs_icon", 50, 0, 0, "green_piggy", 0],
 
     ["PIGGY2", "content/ui/spr_npcs_icon", 50, 0, 0, "green_piggy", 0],
-    ["PIGGY3", "content/ui/spr_npcs_icon", 100, 0, 0, "green_piggy", 0]
+    ["PIGGY3", "content/ui/spr_npcs_icon", 100, 0, 0, "green_piggy", 0],
+
+    ["PIGGY4", "content/ui/spr_npcs_icon", 100, 0, 0, "green_piggy", 0],
+    ["PIGGY5", "content/ui/spr_npcs_icon", 100, 0, 0, "green_piggy", 0],
+    ["PIGGY6", "content/ui/spr_npcs_icon", 100, 0, 0, "green_piggy", 0]
   ]
 }

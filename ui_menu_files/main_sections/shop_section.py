@@ -7,7 +7,7 @@ import json, math
 
 class ShopSection:
     def __init__(self, border_thickness, w, window_h, p, ui):
-        self.row_count = 6
+        self.row_count = 5
         self.column_count = 3
 
         self.box_hover_scale = [0 for _ in range(self.row_count * self.column_count)]
@@ -24,17 +24,23 @@ class ShopSection:
 
         self.ui = ui
 
-        self.window_h = window_h
+        self.coords = ui.coords
+        self.scrollbar_sprite = ui.scroll_bar_sprite
+        self.sc = ui.primary_ui_scale
 
+        self.window_h = window_h
         self.border_thickness = border_thickness
 
         # scroll bar stuff
-        self.scrollbar = Scrollbar(w, border_thickness, self.row_count)
+        self.scrollbar = Scrollbar(w, border_thickness, self.row_count, self.coords, self.scrollbar_sprite)
 
         # sprite stuff
         self.icons = {
-            "closed_lock": load_sprite("content/ui/spr_lock_closed_icon.png")
+            "closed_lock": load_sprite("content/ui/spr_lock_closed_icon.png"),
         }
+
+        # frames
+        self.frames = load_sprite("content/ui/elements/spr_small_frames.png")
 
         # shop contents
         file = "content/json_info/ui_info.json"
@@ -73,20 +79,15 @@ class ShopSection:
         for i in range(len(self.info)):
             self.info_anim.append([0, 0])  # switch animation, switch hover
 
-    def step(self, x, y, w, h, mouse_pos):
-        scroll_bar_width = self.scrollbar.scroll_bar_width
+    def step(self, mouse_pos):
         scroll_bar_height = self.scrollbar.scroll_bar_height
 
-        p = w // 40
-        x = int(x + p - scroll_bar_width)
-        y = int(y + p)
-        w = int(w - p * 2)
-        h = int(h - p * 2)
+        x, w, y, h = get_coord_values(self.coords["main_area"])
 
-        box_width = int(w // 1.4 // self.column_count * 1.075)
-        box_height = box_width * 1.1
+        box_width = self.sc * self.frames.width / 4
+        box_height = self.sc * self.frames.height
 
-        box_jump_height = box_height * 1.125
+        box_jump_height = box_height
         total_space_taken = max(box_jump_height * self.row_count - h + self.border_thickness, 0)
 
         offset_y = total_space_taken * self.scrollbar.get_scroll_value() / (1 - scroll_bar_height)
@@ -94,13 +95,28 @@ class ShopSection:
         # fucking LOVE scissor mode
         pr.begin_scissor_mode(x, y, w, h)
 
+        skip_icon = 0  #  if npc is bought, DONT SHOW IT ANYMORE
+
         # ui icons
         for i in range(self.row_count):
             for j in range(self.column_count):
-                ind = j + i * self.column_count
+                ind = j + i * self.column_count + skip_icon
 
-                box_x = x + w // (self.column_count + 2) * (j*1.8 + 1) // 1.25 - box_width // 2 // 1.5
-                box_y = y - offset_y + (box_jump_height * i) + p
+                while True:
+                    if ind < len(self.info):
+                        if self.info[ind][4] >= 1:
+                            skip_icon += 1
+                            ind = j + i * self.column_count + skip_icon
+                        else:
+                            break
+                    else:
+                        break
+
+                if ind > self.column_count * self.row_count - 1:
+                    continue
+
+                box_x = x + box_width * j + self.sc * 2
+                box_y = y - offset_y + (box_jump_height * i) + 0 + self.sc
 
                 rec = pr.Rectangle(box_x, box_y, box_width, box_height)
 
@@ -126,18 +142,24 @@ class ShopSection:
 
                                     self.info[ind][6] = 1  # set character to true
                                     self.ui.main.send({"add_npc": self.info[ind][5]})
+
+                                    skip_icon += 1
+                                    continue
                 else:
                     self.box_hover_scale[ind] = max(self.box_hover_scale[ind] - 1 / 5, 0)
 
-                pr.draw_rectangle_rounded(rec, 0.2, -1, col)
-                pr.draw_rectangle_rounded_lines_ex(rec, 0.25, -1, self.border_thickness, BLACK)
+                tw = self.frames.width / 4 * (self.box_hover_scale[ind] / 50)
+                th = self.frames.height * (self.box_hover_scale[ind] / 50)
+                tmp = (1 + self.box_hover_scale[ind] / 50)
 
-                self.draw_box_contents(ind, box_x, box_y, box_width, box_height, mouse_pos)
+                draw_sprite(self.frames, box_x - tw, box_y - th, self.sc * tmp, frame_count=4, current_frame=0)
+
+                self.draw_box_contents(ind, box_x - tw, box_y - th, box_width * tmp, box_height * tmp, mouse_pos)
 
         pr.end_scissor_mode()
 
         # scroll bar
-        self.scrollbar.scroll_bar(x, y, w, h, p, mouse_pos)
+        self.scrollbar.scroll_bar(mouse_pos)
 
     def draw_box_contents(self, ind, x, y, w, h, mouse_pos):
         if ind < len(self.info):
@@ -156,9 +178,9 @@ class ShopSection:
             # check if level requirement is gut
             if self.general_info["level"] >= required_level:
                 # title
-                draw_fitted_text(self.title_font, text, x + w // 2, y + h // 20, w // 1.25, 50, BLACK, max_height=h//5, align="center")
-                draw_fitted_text(self.title_font_background, text, x + w // 2, y + h // 20, w // 1.25, 50, WHITE,
-                                 max_height=h // 5, align="center")
+                # draw_fitted_text(self.title_font, text, x + w // 2, y + h // 20, w // 1.25, 50, BLACK, max_height=h//5, align="center")
+                # draw_fitted_text(self.title_font_background, text, x + w // 2, y + h // 20, w // 1.25, 50, WHITE,
+                #                  max_height=h // 5, align="center")
 
                 # character sprite
                 if self.animations[text]:
@@ -173,29 +195,22 @@ class ShopSection:
 
                         current_frame = math.floor(animation[3])
 
-                        sprite_tint = WHITE
-                        if amount_bought <= 0:
-                            sprite_tint = BLACK
+                        hover = self.box_hover_scale[ind]
+
+                        sprite_tint = BLACK
+                        if price <= self.general_info["currency"]:
+                            sprite_tint = blend_colors(BLACK, GREEN, hover)
 
                         scale = h // char_sprite.height * animation[2] * 1.25
-                        draw_sprite(char_sprite, x + w // 2, y + h // 2, scale, origin="middle_center", current_frame=current_frame, frame_count=animation[1], tint=sprite_tint)
+                        draw_sprite(char_sprite, x + w // 2, y + h // 2.25, scale, origin="middle_center", current_frame=current_frame, frame_count=animation[1], tint=sprite_tint)
                 
                 # price
                 if amount_bought <= 0:
-                    a_y = y + h - h // 6
-                    a_h = int(h // 6 * 1.25)
-
-                    # box color if can buy
-                    col = WHITE
-                    if self.general_info["currency"] >= price:
-                        col = blend_colors(SOFT_GREEN, WHITE, 0.5)
-
-                    bg = pr.Rectangle(x + w // 5, a_y, w // 1.6, a_h)
-                    pr.draw_rectangle_rounded(bg, 0.6, -1, col)
-                    pr.draw_rectangle_rounded_lines_ex(bg, 0.7, -1, self.border_thickness, BLACK)
+                    a_y = y + h - h // 4.5
+                    a_h = int(h // 6)
 
                     # actual price
-                    txt = f"${price}"
+                    txt = str(price)
                     col = BLACK
                     draw_fitted_text(self.font, txt, x + w // 2, a_y + a_h // 2, w // 1.75, 50, col, max_height=h//6, align="center", center_y=True)
                 else:

@@ -12,13 +12,30 @@ import math
 
 
 class UI:
-    def __init__(self, w, extra_w, h, font, main):
+    def __init__(self, w, extra_w, h, font, main, primary_sprite):
         self.w = w
         self.extra_w = extra_w
 
         self.h = h
 
         self.main = main
+
+        self.primary_ui = primary_sprite
+        self.primary_ui_frames = 6
+
+        sc = h / primary_sprite.height
+        self.primary_ui_scale = sc
+
+        self.coords = {
+            "title": [[int(36 * sc), int(21 * sc)], [int(135 * sc), int(37 * sc)]],
+            "currency": [[int(150 * sc), int(24 * sc)], [int(175 * sc), int(35 * sc)]],
+
+            "buttons": [[[int(195 * sc), int(19 * sc)], [int(221 * sc), int(48 * sc)]], int(32 * sc), 6],  # +32 per button, 6 buttons
+            "x_button": [[int(231 * sc), int(22 * sc)], [int(248 * sc), int(41 * sc)]],
+
+            "scrollbar": [[int(180 * sc), int(43 * sc)], [int(186 * sc), int(205 * sc)]],
+            "main_area": [[int(24 * sc), int(47 * sc)], [int(174 * sc), int(206 * sc)]]
+        }
 
         self.p = 10
 
@@ -54,11 +71,15 @@ class UI:
             "shop": [load_sprite("content/ui/spr_shop_icon.png"), 0, 0, ORANGE, "Character Shop"],  # texture, hover scale, chosen, bg color, section name
             "environment": [load_sprite("content/ui/spr_environment_icon.png"), 0, 0, SOFT_GREEN, "Biomes"],
             "home": [load_sprite("content/ui/spr_home_icon.png"), 0, 0, LIGHT_BLUE, "Home"],
+            "friends": [load_sprite("content/ui/spr_npcs_icon.png"), 0, 0, LIGHT_BLUE, "Characters"],
             "settings": [load_sprite("content/ui/spr_gear_icon.png"), 0, 0, PURPLE, "Settings"],
-            "exit": [load_sprite("content/ui/spr_exit_icon.png"), 0, 0, SOFT_RED, "Exit"]
+            "exit": [load_sprite("content/ui/spr_exit_icon.png"), 0, 0, SOFT_RED, "Exit"],
         }
-        self.icon_order = ["shop", "environment", "home", "settings", "exit"]
-        self.chosen_main_section = 1
+        self.icon_order = ["shop", "environment", "home", "friends", "settings", "exit"]
+        self.chosen_main_section = 0
+
+        self.buttons = load_sprite("content/ui/elements/spr_tab_buttons.png")
+        self.scroll_bar_sprite = load_sprite("content/ui/elements/spr_esc_scroll.png")
 
         self.shop_section = ShopSection(self.border_thickness, self.main_width, h, self.p, self)
         self.biome_section = BiomeSection(self.border_thickness, self.main_width, h, self.p, self)
@@ -125,11 +146,17 @@ class UI:
                 pr.rl_rotatef(math.sin(math.pi * 2 * self.screen_shake) * 0.5, 0, 0, 1)
                 pr.rl_translatef(-self.w / 2, -self.h / 2, 0)
 
+            # main background
+            draw_sprite(self.primary_ui, 0, 0, self.primary_ui_scale, frame_count=6, current_frame=self.chosen_main_section)
+
             # main ui sections
-            self.button_section(self.main_width + p // 2, p, (self.w - self.main_width - p * 2) // 1.5, self.h - p * 2)
-            self.header_section(p, p, self.main_width - p * 2, self.header_height)
+            self.button_section()
+            self.header_section()
             self.main_section(p, self.header_height + p, self.main_width - p * 2, self.h - self.header_height - p * 2)
-            self.exit_section(self.main_width + p // 2 + (self.w - self.main_width - p * 2) // 1.5 + p * 3, p, self.extra_w, self.h - p * 2)
+            self.exit_section()
+
+            #print(self.get_mouse_pos())
+            #draw_sprite(self.ui_sketch, 0, 0, self.h / self.ui_sketch.height)
 
             if self.screen_shake > 0:
                 self.screen_shake -= 1 / 20
@@ -180,91 +207,57 @@ class UI:
             except:
                 pass
 
-    def header_section(self, x, y, w, h):
-        bg = pr.Rectangle(x, y, w, h + self.p * 6)
-        pr.draw_rectangle_rounded(bg, 0.3, -1, self.bg_color)
-
-        bg = pr.Rectangle(x, y, w, h + (self.h - self.header_height - self.p * 2))
-        pr.draw_rectangle_rounded_lines_ex(bg, 0.09, -1, self.border_thickness, BLACK)
-
+    def header_section(self):
         # section title
-        p = self.p * 2
+        x, w, y, h = get_coord_values(self.coords["title"])
 
-        xx = x + p * 2
-        ww = w * 0.6
-
-        yy = y + p + self.p // 2
-        hh = h - p * 2
-
-        bg_col = self.icons[self.icon_order[self.chosen_main_section]][3]
         text = self.icons[self.icon_order[self.chosen_main_section]][4]
 
-        bg = pr.Rectangle(xx, yy, ww, hh)
-        pr.draw_rectangle_rounded(bg, 0.3, -1, bg_col)
-        pr.draw_rectangle_rounded_lines_ex(bg, 0.35, -1, self.border_thickness, BLACK)
-
-        font_size = int(pr.measure_text_ex(self.font, text, hh // 1.5, 0).y)
-        draw_fitted_text(self.font, text, xx + ww // 2, yy + hh // 2, ww // 1.5, font_size, BLACK, align="center", center_y=True)
+        font_size = int(pr.measure_text_ex(self.font, text, h // 1.5, 0).y)
+        draw_fitted_text(self.font, text, x + w // 2, y + h // 2, w // 1.5, font_size, BLACK, align="center", center_y=True)
 
         # section currency
-        xx = x + ww + p * 2 * 2
-        ww = w - ww - p * 2 * 3
+        x, w, y, h = get_coord_values(self.coords["currency"])
 
-        bg = pr.Rectangle(xx, yy, ww, hh)
-        pr.draw_rectangle_rounded(bg, 0.3, -1, WHITE)
-        pr.draw_rectangle_rounded_lines_ex(bg, 0.35, -1, self.border_thickness, BLACK)
+        text = str(self.general_info["currency"])
+        if self.chosen_main_section == 1:
+            text = f"Lv. {self.general_info['level']}"
 
-        text = f"Lv. {self.general_info['level']}"
-        if self.chosen_main_section == 0:
-            text = f'${self.general_info["currency"]}'
-
-        draw_fitted_text(self.font, text, xx + ww // 2, yy + hh // 2, ww // 1.25, font_size, BLACK, align="center", center_y=True)
-
-        #self.draw_text(f'${self.general_info["currency"]}', x + w // 2, y + (h - font_size) // 2, font_size, BLACK, text_align="center")
+        draw_fitted_text(self.font, text, x + w // 2, y + h // 2, w // 1.25, font_size, BLACK, align="center", center_y=True)
 
     def main_section(self, x, y, w, h):
-        bg = pr.Rectangle(x, y, w, h)
-        pr.draw_rectangle_rounded(bg, 0.1, -1, self.bg_color)
+        # bg = pr.Rectangle(x, y, w, h)
+        # pr.draw_rectangle_rounded(bg, 0.1, -1, self.bg_color)
         #pr.draw_rectangle_rounded_lines_ex(bg, 0.1, -1, self.border_thickness, BLACK)
 
         # sections
         mouse_pos = self.get_mouse_pos()
         if self.chosen_main_section == 0:
-            self.shop_section.step(x, y, (w + self.p) * self.show_scale, h * self.show_scale, mouse_pos)
+            self.shop_section.step(mouse_pos)
         if self.chosen_main_section == 1:
-            self.biome_section.step(x, y, w * self.show_scale, h * self.show_scale, mouse_pos)
-        if self.chosen_main_section == 3:
-            self.settings_section.step(x, y, w, h, mouse_pos)
+            self.biome_section.step(mouse_pos)
         if self.chosen_main_section == 4:
+            self.settings_section.step(x, y, w, h, mouse_pos)
+        if self.chosen_main_section == 5:
             self.main.send({"close_window": 1})
             pr.close_window()
 
-    def button_section(self, x, y, w, h):
-        bg = pr.Rectangle(x, y, w, h)
-        #pr.draw_rectangle_rounded(bg, 0.2, -1, WHITE)
-        #pr.draw_rectangle_rounded_lines_ex(bg, 0.2, -1, self.border_thickness, BLACK)
-
+    def button_section(self):
         mouse_pos = self.get_mouse_pos()
 
         buttons = len(self.icon_order)
 
+        x, w, y, h = get_coord_values(self.coords["buttons"])
+
+        jump_y = self.coords["buttons"][1]
+
         # buttons
         for ind in range(buttons):
-            h1 = int(h / buttons * ind)
-            h2 = int(h / buttons * (ind+1))
-
-            p = (w - (h2 - h1)) // 2
-
-            hh = (h2 - h1) + p
-
-            current_icon = self.icons[self.icon_order[ind]][0]
             hover_scale = self.icons[self.icon_order[ind]][1]
             chosen_scale = self.icons[self.icon_order[ind]][2]
 
-            bg_col = self.icons[self.icon_order[ind]][3]
-
             # check for button hover + click
-            rec = pr.Rectangle(x, y + h1, w, h2 - h1)
+            rec = pr.Rectangle(x, y + jump_y * ind, w, h)
             if pr.check_collision_point_rec(mouse_pos, rec):
                 self.icons[self.icon_order[ind]][1] = min(hover_scale + 1 / 10, 1)
 
@@ -282,60 +275,30 @@ class UI:
             else:
                 self.icons[self.icon_order[ind]][2] = max(chosen_scale - 1 / 10, 0)
 
-            # draw connecting background between chosen icon and main section
-            if ind == self.chosen_main_section:
-                left = self.p * 1.5 - self.border_thickness + self.p * 4
-
-                # connecting white part
-                bg = pr.Rectangle(x - left, h1 - int(p * 0.5) + self.border_thickness // 2, w + self.p * 1.5 + left, hh - (p * 1) + self.border_thickness // 2)
-                pr.draw_rectangle_rounded(bg, 0.2, -1, self.bg_color)
-
-                left += self.p * 4
-
-                # black outline
-                bg = pr.Rectangle(x - left, h1 - int(p * 0.5) + int(self.border_thickness * 0.75), w + self.p * 1.5 + left, hh - (p * 1))
-                pr.draw_rectangle_rounded_lines_ex(bg, 0.25, -1, self.border_thickness, BLACK)
-
-            # draw icon background
-            bg = pr.Rectangle(x, h1 - int(p * 1.5), w, hh + p)
-            pr.draw_rectangle_rounded(bg, 0.2, -1, bg_col)
-            pr.draw_rectangle_rounded_lines_ex(bg, 0.2, -1, self.border_thickness, BLACK)
-
             # draw icon
-            attributed_scale = max(hover_scale, chosen_scale)
+            scale = h / self.buttons.height * 1.05
+            draw_sprite(self.buttons, x - scale, y + jump_y * ind - scale * 2, scale, tint=WHITE, frame_count=buttons*2, current_frame=ind*2 + round(chosen_scale))
 
-            scale = w / current_icon.width / 1.25 * (attributed_scale / 6 + 1) / 1.4
-            draw_sprite(current_icon, x + w // 2, y + h1 + (h2 - h1) // 2, scale,
-                        origin="middle_center", tint=blend_colors(blend_colors(BLACK, BLACK, attributed_scale), WHITE, chosen_scale),
-                        rot=math.sin(math.pi * 2 * attributed_scale) * 3)
-
-    def exit_section(self, x, y, w, h):
+    def exit_section(self):
         mouse_pos = self.get_mouse_pos()
 
-        xx = x
-        ww = w
+        x, w, y, h = get_coord_values(self.coords["x_button"])
 
-        yy = y
-        hh = w
+        bg = pr.Rectangle(x, y, w, h)
 
-        bg = pr.Rectangle(xx, yy, ww, hh)
-        pr.draw_rectangle_rounded(bg, 0.25, -1, SOFT_RED)
-        pr.draw_rectangle_rounded_lines_ex(bg, 0.3, -1, self.border_thickness, BLACK)
-
+        frame = 0
         if pr.check_collision_point_rec(mouse_pos, bg):
             self.minimize_window_hover = min(self.minimize_window_hover + 1 / 10, 1)
 
-            if pr.is_mouse_button_pressed(pr.MouseButton(0)) and self.show and self.show_scale >= 1:
+            if pr.is_mouse_button_released(pr.MouseButton(0)) and self.show and self.show_scale >= 1:
                 self.main.send({"minimize_ui": True})
+
+            if pr.is_mouse_button_down(pr.MouseButton(0)):
+                frame = 1
         else:
             self.minimize_window_hover = max(self.minimize_window_hover - 1 / 10, 0)
 
-        # x icon
-        p = self.border_thickness * 4
-        ch = self.minimize_window_hover * (hh - p * 2)
-
-        pr.draw_line_ex(pr.Vector2(xx + p, yy + hh - p - ch), pr.Vector2(xx + ww - p, yy + p + ch), p // 2, BLACK)
-        pr.draw_line_ex(pr.Vector2(xx + p, yy + p + ch), pr.Vector2(xx + ww - p, yy + hh - p - ch), p // 2, BLACK)
+        draw_sprite(self.scroll_bar_sprite, x - self.primary_ui_scale, y - self.primary_ui_scale, self.primary_ui_scale, frame_count=3, current_frame=frame)
 
     def draw_text(self, text, pos_x, pos_y, font_size, color, text_align="left", outline_size=0, outline_color=BLACK):
         text = f"{text}"

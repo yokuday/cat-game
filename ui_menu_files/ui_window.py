@@ -7,6 +7,8 @@ import winxpgui
 from ui_menu_files.hide_window import *
 from ui_menu_files.ui_shop import UI
 
+from ui_menu_files.main_sections.sprite_manager import load_sprite
+
 
 class Window:
     def __init__(self, main):
@@ -16,9 +18,9 @@ class Window:
         self.max_width = primary.width
         self.max_height = primary.height
 
-        self.height = int(self.max_height // 2)
-        self.width = int(self.height * 1.3)
-        self.extra_width = self.width // 10
+        self.height = int(self.max_height // 1.75)
+        self.width = 100
+        self.extra_width = 0  # self.width // 10
 
         self.main = main
 
@@ -26,7 +28,20 @@ class Window:
 
         pr.set_config_flags(pr.ConfigFlags.FLAG_WINDOW_TRANSPARENT | pr.ConfigFlags.FLAG_WINDOW_UNDECORATED | pr.ConfigFlags.FLAG_WINDOW_TOPMOST | pr.ConfigFlags.FLAG_VSYNC_HINT)
         pr.init_window(self.width + self.extra_width, self.height, "Idle - game - ui_window")
-        pr.set_window_position((self.max_width - self.width - self.extra_width) // 2, (self.max_height - self.height) // 2)
+
+        # change window size after loading necessary textures
+        self.primary_ui_sprite = pr.load_texture("content/ui/spr_ui_main_board.png")
+        self.primary_ui_sprite_frames = 6
+        self.width = int(self.height * (
+                    self.primary_ui_sprite.width / self.primary_ui_sprite_frames / self.primary_ui_sprite.height))
+
+        for a in range(100):
+            print(self.primary_ui_sprite.width, self.primary_ui_sprite.height)
+            print(self.width, self.height)
+
+        pr.set_window_size(self.width + self.extra_width, self.height)
+        pr.set_window_position((self.max_width - self.width - self.extra_width) // 2,
+                               (self.max_height - self.height) // 2)
 
         pr.set_target_fps(60)
 
@@ -45,10 +60,10 @@ class Window:
         self.show_window = False
         self.socket_info = {}
 
-        self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
+        self.font = pr.load_font_ex("content/pixel_font.ttf", 96, None, 0)
         pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
 
-        self.ui = UI(self.width, self.extra_width, self.height, self.font, self.main)
+        self.ui = UI(self.width, self.extra_width, self.height, self.font, self.main, self.primary_ui_sprite)
 
         # window dragging
         self.dragging = False

@@ -14,11 +14,11 @@
   },
   "oak_tree": {
     "animations": [
-      ["idle", "spr_oak_tree", 4]
+      ["idle", "spr_oak_tree", 1]
     ],
     "sprite_folder": "nodes",
     "extra_info": {
-      "height_multiplier": 0.5,
+      "height_multiplier": 0.8,
 
       "origin_point": "middle-bottom",
       "animation_speed": 8,

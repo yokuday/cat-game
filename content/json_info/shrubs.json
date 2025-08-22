@@ -1,0 +1,35 @@
+{
+  "grass_1": {
+    "animations": [
+      ["idle", "spr_grass_1", 1]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "offset_y": 6,
+      "height_multiplier": 0.175,
+      "parent_type": "shrub"
+    }
+  },
+  "grass_2": {
+    "animations": [
+      ["idle", "spr_grass_2", 1]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "offset_y": 2,
+      "height_multiplier": 0.1,
+      "parent_type": "shrub"
+    }
+  },
+  "grass_3": {
+    "animations": [
+      ["idle", "spr_grass_3", 1]
+    ],
+    "sprite_folder": "nodes",
+    "extra_info": {
+      "offset_y": 2,
+      "height_multiplier": 0.1,
+      "parent_type": "shrub"
+    }
+  }
+}

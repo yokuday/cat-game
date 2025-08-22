@@ -2,6 +2,7 @@ import uuid, random, math
 from game_scripts.object_specific_scripts.tree import Tree
 from game_scripts.object_specific_scripts.item import Item
 from game_scripts.object_specific_scripts.storage import Storage
+from game_scripts.object_specific_scripts.shrub import Shrub
 
 
 class NPCManager:
@@ -34,7 +35,8 @@ class NPCManager:
         custom_classes = {
             "node": Tree(self.w, self.h),
             "item": Item(self.w, self.h),
-            "storage": Storage(self.w, self.h, self.player_info, self.y_offset)
+            "storage": Storage(self.w, self.h, self.player_info, self.y_offset),
+            "shrub": Shrub(self.w, self.h, self.player_info)
         }
 
         return {
