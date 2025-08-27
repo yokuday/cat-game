@@ -1,4 +1,4 @@
-import uuid, random, math
+import uuid, random, math, json
 from game_scripts.object_specific_scripts.tree import Tree
 from game_scripts.object_specific_scripts.item import Item
 from game_scripts.object_specific_scripts.storage import Storage
@@ -17,7 +17,12 @@ class NPCManager:
 
         self.npcs = [
             self.create_npc(npc_type="storage_box", coords=[self.w // 2, self.h]),
-            self.create_npc(npc_type="longy")
+            #self.create_npc(npc_type="longy"),
+            # self.create_npc(npc_type="pirate_female"),
+            # self.create_npc(npc_type="orc_male"),
+            # self.create_npc(npc_type="orc_female"),
+            # self.create_npc(npc_type="angel_male"),
+            # self.create_npc(npc_type="angel_female"),
         ]
 
         # for _ in range(7):
@@ -47,6 +52,8 @@ class NPCManager:
                 "current_frame": 0,
                 "current_animation": "idle",
 
+                "animation_offsets": extra_info.get("offset_y_animations", {}),
+
                 "animation_speed": extra_info.get("animation_speed", 4),
                 "animation_tick": 0
             },
@@ -59,6 +66,7 @@ class NPCManager:
                 "spd": self.w // 450 * extra_info.get("spd", 1),  # MOVING spd per frame
                 "can_carry": extra_info.get("can_carry", True),
                 "can_action": extra_info.get("can_action", True),
+                "hit_frame": extra_info.get("hit_frame", 2),
 
                 "height": extra_info.get("height", self.h // 2),
                 "offset_y": extra_info.get("offset_y", 0),
@@ -113,6 +121,7 @@ class NPCManager:
 
         x = info["x"]
         spd = info["spd"]
+        hit_frame = info["hit_frame"]
 
         pathfinding = actions["pathfinding_values"]
 
@@ -209,7 +218,7 @@ class NPCManager:
                             self.reset_actions(actions)
 
                 else:
-                    if abs(goal_x - x) <= spd + 18 * obj["general_info"]["scale"]:
+                    if abs(goal_x - x) <= spd + 12 * obj["general_info"]["scale"]:
                         actions["doing_action"] = True
                         return 0
 
@@ -220,7 +229,7 @@ class NPCManager:
 
                 frame = animation_info["current_frame"]
 
-                if frame >= 7:
+                if frame >= hit_frame:
                     target = pathfinding[0][1]
 
                     if not actions["action_hit"]:

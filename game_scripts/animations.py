@@ -132,6 +132,11 @@ class GameAnimations:
             current_anim = npc["animations"][animation]
             general_info = npc["general_info"]
 
+            offset_y = general_info["offset_y"]
+
+            if current_animation in anim_info["animation_offsets"]:
+                offset_y = anim_info["animation_offsets"][current_animation]
+
             origin_point = general_info["origin_point"]
             rotation = general_info["rotation"]
             alpha = general_info["alpha"]
@@ -158,7 +163,7 @@ class GameAnimations:
 
             # destination rectangle ( drawing from center )
             dest_rect = pr.Rectangle(
-                general_info["x"], general_info["y"] - general_info["offset_y"] * scale + self.y_offset,
+                general_info["x"], general_info["y"] - offset_y * scale + self.y_offset,
                 scaled_width, scaled_height
             )
 

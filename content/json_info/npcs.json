@@ -143,6 +143,142 @@
   },
 
 
+  "pirate_male": {
+      "animations": [
+        ["idle", "/pirate/spr_male_walking", 8],
+        ["run", "/pirate/spr_male_walking", 8],
+        ["carry", "/pirate/spr_male_walking", 8],
+        ["axe", "/pirate/spr_male_gathering", 4],
+        ["axe-tools", "spr_gathering_pickaxe", 4]
+      ],
+      "sprite_folder": "characters",
+      "extra_info": {
+        "offset_y": 10,
+
+        "offset_y_animations": {
+          "run": 12,
+          "carry": 12,
+          "idle": 12
+        },
+
+        "height_multiplier": 0.5,
+        "animation_speed": 6
+      }
+  },
+  "pirate_female": {
+      "animations": [
+        ["idle", "/pirate/spr_female_walking", 8],
+        ["run", "/pirate/spr_female_walking", 8],
+        ["carry", "/pirate/spr_female_walking", 8],
+        ["axe", "/pirate/spr_female_gathering", 4],
+        ["axe-tools", "spr_gathering_pickaxe", 4]
+      ],
+      "sprite_folder": "characters",
+      "extra_info": {
+        "offset_y": 10,
+
+        "offset_y_animations": {
+          "run": 12,
+          "carry": 12,
+          "idle": 12
+        },
+
+        "height_multiplier": 0.5,
+        "animation_speed": 6
+      }
+  },
+
+  "orc_male": {
+      "animations": [
+        ["idle", "/orc/spr_male_walking", 8],
+        ["run", "/orc/spr_male_walking", 8],
+        ["carry", "/orc/spr_male_walking", 8],
+        ["axe", "/orc/spr_male_gathering", 4],
+        ["axe-tools", "spr_gathering_pickaxe", 4]
+      ],
+      "sprite_folder": "characters",
+      "extra_info": {
+        "offset_y": 10,
+
+        "offset_y_animations": {
+          "run": 12,
+          "carry": 12,
+          "idle": 12
+        },
+
+        "height_multiplier": 0.5,
+        "animation_speed": 6
+      }
+  },
+  "orc_female": {
+      "animations": [
+        ["idle", "/orc/spr_female_walking", 8],
+        ["run", "/orc/spr_female_walking", 8],
+        ["carry", "/orc/spr_female_walking", 8],
+        ["axe", "/orc/spr_female_gathering", 4],
+        ["axe-tools", "spr_gathering_pickaxe", 4]
+      ],
+      "sprite_folder": "characters",
+      "extra_info": {
+        "offset_y": 10,
+
+        "offset_y_animations": {
+          "run": 12,
+          "carry": 12,
+          "idle": 12
+        },
+
+        "height_multiplier": 0.5,
+        "animation_speed": 6
+      }
+  },
+
+  "angel_male": {
+      "animations": [
+        ["idle", "/angel/spr_male_walking", 8],
+        ["run", "/angel/spr_male_walking", 8],
+        ["carry", "/angel/spr_male_walking", 8],
+        ["axe", "/angel/spr_male_gathering", 4],
+        ["axe-tools", "spr_gathering_pickaxe", 4]
+      ],
+      "sprite_folder": "characters",
+      "extra_info": {
+        "offset_y": 10,
+
+        "offset_y_animations": {
+          "run": 12,
+          "carry": 12,
+          "idle": 12
+        },
+
+        "height_multiplier": 0.5,
+        "animation_speed": 6
+      }
+  },
+  "angel_female": {
+      "animations": [
+        ["idle", "/angel/spr_female_walking", 8],
+        ["run", "/angel/spr_female_walking", 8],
+        ["carry", "/angel/spr_female_walking", 8],
+        ["axe", "/angel/spr_female_gathering", 4],
+        ["axe-tools", "spr_gathering_pickaxe", 4]
+      ],
+      "sprite_folder": "characters",
+      "extra_info": {
+        "offset_y": 10,
+
+        "offset_y_animations": {
+          "run": 12,
+          "carry": 12,
+          "idle": 12
+        },
+
+        "height_multiplier": 0.5,
+        "animation_speed": 6
+      }
+  },
+
+
   "pirate_captain": {
     "animations": [
       ["idle", "spr_idle", 5],

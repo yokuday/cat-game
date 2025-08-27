@@ -13,6 +13,8 @@ class SettingSection:
         self.p = p
         self.ui = ui
 
+        self.coords = ui.coords
+
         self.font = ui.font
 
         self.options = [
@@ -23,7 +25,9 @@ class SettingSection:
         self.s_h = int(h // 6)
         self.s_w = int(w // 1.2)
 
-    def step(self, x, y, w, h, mouse_pos):
+    def step(self, mouse_pos):
+        x, w, y, h = get_coord_values(self.coords["main_area"])
+
         yy = y + self.p
         for i, option in enumerate(self.options):
             if option[2]:

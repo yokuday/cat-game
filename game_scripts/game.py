@@ -4,6 +4,9 @@ from game_scripts.animations import GameAnimations
 from game_scripts.npc_logic import NPCManager
 from game_scripts.ui import MainUI
 from game_scripts.visual_scripts.effects_controller import VisualEffects
+from ui_menu_files.main_sections.sprite_manager import *
+
+from useful_draw_functions import *
 
 
 import pyray as pr
@@ -20,6 +23,11 @@ class Game:
 
         self.font = pr.load_font_ex("content/Roboto-Medium.ttf", 96, None, 0)
         pr.set_texture_filter(self.font.texture, pr.TextureFilter.TEXTURE_FILTER_BILINEAR)
+
+        # blocks
+        self.blocks = load_sprite("content/decorations/spr_ground_blocks.png")
+        self.block_size = 0.1 * h / self.blocks.height
+        self.y_offset -= self.block_size * self.blocks.height
 
         # init everything
         self.animations = GameAnimations(w, h, self.y_offset, player_info)
@@ -39,7 +47,10 @@ class Game:
 
         self.npc_manager.item_count = item_count
 
-        action_npcs = ["spikey", "shortie", "moppie", "longy", "curly", "bowly", "pirate_captain", "green_piggy", "goblin"]
+        action_npcs = ["spikey", "shortie", "moppie", "longy", "curly", "bowly",
+                       "pirate_captain", "green_piggy", "goblin",
+
+                       "pirate_male", "pirate_female", "orc_male", "orc_female", "angel_male", "angel_female"]
 
         # npc stuff
         for i in range(len(npcs) - 1, -1, -1):
@@ -88,6 +99,14 @@ class Game:
             if npc["custom_class"]:
                 if hasattr(npc["custom_class"], "post_step"):
                     npc["custom_class"].post_step(npc)
+
+        # blocks
+        block_count = int(self.w // (self.block_size * self.blocks.width / 3))
+        for a in range(block_count + 1):
+            xx = a * self.blocks.width * self.block_size / 3 // 1
+            yy = self.h - self.blocks.height * self.block_size
+
+            draw_sprite(self.blocks, xx, yy, self.block_size, current_frame=1, frame_count=3)
 
         # draw visual effects
         self.effects.step()

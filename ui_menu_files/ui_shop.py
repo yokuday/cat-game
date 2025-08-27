@@ -152,7 +152,8 @@ class UI:
             # main ui sections
             self.button_section()
             self.header_section()
-            self.main_section(p, self.header_height + p, self.main_width - p * 2, self.h - self.header_height - p * 2)
+            if self.show_scale >= 1:
+                self.main_section()
             self.exit_section()
 
             #print(self.get_mouse_pos())
@@ -225,7 +226,7 @@ class UI:
 
         draw_fitted_text(self.font, text, x + w // 2, y + h // 2, w // 1.25, font_size, BLACK, align="center", center_y=True)
 
-    def main_section(self, x, y, w, h):
+    def main_section(self):
         # bg = pr.Rectangle(x, y, w, h)
         # pr.draw_rectangle_rounded(bg, 0.1, -1, self.bg_color)
         #pr.draw_rectangle_rounded_lines_ex(bg, 0.1, -1, self.border_thickness, BLACK)
@@ -237,7 +238,7 @@ class UI:
         if self.chosen_main_section == 1:
             self.biome_section.step(mouse_pos)
         if self.chosen_main_section == 4:
-            self.settings_section.step(x, y, w, h, mouse_pos)
+            self.settings_section.step(mouse_pos)
         if self.chosen_main_section == 5:
             self.main.send({"close_window": 1})
             pr.close_window()
