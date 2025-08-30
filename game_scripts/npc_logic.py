@@ -18,11 +18,12 @@ class NPCManager:
         self.npcs = [
             self.create_npc(npc_type="storage_box", coords=[self.w // 2, self.h]),
             #self.create_npc(npc_type="longy"),
-            # self.create_npc(npc_type="pirate_female"),
-            # self.create_npc(npc_type="orc_male"),
-            # self.create_npc(npc_type="orc_female"),
-            # self.create_npc(npc_type="angel_male"),
-            # self.create_npc(npc_type="angel_female"),
+            self.create_npc(npc_type="pirate_male"),
+            self.create_npc(npc_type="pirate_female"),
+            self.create_npc(npc_type="orc_male"),
+            self.create_npc(npc_type="orc_female"),
+            self.create_npc(npc_type="angel_male"),
+            self.create_npc(npc_type="angel_female"),
         ]
 
         # for _ in range(7):
@@ -209,12 +210,18 @@ class NPCManager:
                         # check if item was picked up
                         if obj["parent_type"] == "item":
                             obj["custom_class"].picked_up = True
+                            obj["custom_class"].npc_info = info
+                            obj["custom_class"].npc_animation_info = animation_info
+                            obj["custom_class"].number = current_path
 
                         # check if storage reached
                         if obj["parent_type"] == "storage":
                             # send all items to storage first
                             for item in pathfinding[:-1]:
                                 obj["custom_class"].item_queue.append([item[1]["type"], 1])
+
+                                # and delete item
+                                item[1]["custom_class"].deposited = True
                             self.reset_actions(actions)
 
                 else:

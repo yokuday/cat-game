@@ -147,7 +147,7 @@
       "animations": [
         ["idle", "/pirate/spr_male_walking", 8],
         ["run", "/pirate/spr_male_walking", 8],
-        ["carry", "/pirate/spr_male_walking", 8],
+        ["carry", "/pirate/spr_male_carrying", 8],
         ["axe", "/pirate/spr_male_gathering", 4],
         ["axe-tools", "spr_gathering_pickaxe", 4]
       ],
@@ -157,7 +157,6 @@
 
         "offset_y_animations": {
           "run": 12,
-          "carry": 12,
           "idle": 12
         },
 
@@ -169,7 +168,7 @@
       "animations": [
         ["idle", "/pirate/spr_female_walking", 8],
         ["run", "/pirate/spr_female_walking", 8],
-        ["carry", "/pirate/spr_female_walking", 8],
+        ["carry", "/pirate/spr_female_carrying", 8],
         ["axe", "/pirate/spr_female_gathering", 4],
         ["axe-tools", "spr_gathering_pickaxe", 4]
       ],
@@ -179,7 +178,6 @@
 
         "offset_y_animations": {
           "run": 12,
-          "carry": 12,
           "idle": 12
         },
 
@@ -192,7 +190,7 @@
       "animations": [
         ["idle", "/orc/spr_male_walking", 8],
         ["run", "/orc/spr_male_walking", 8],
-        ["carry", "/orc/spr_male_walking", 8],
+        ["carry", "/orc/spr_male_carrying", 8],
         ["axe", "/orc/spr_male_gathering", 4],
         ["axe-tools", "spr_gathering_pickaxe", 4]
       ],
@@ -202,7 +200,6 @@
 
         "offset_y_animations": {
           "run": 12,
-          "carry": 12,
           "idle": 12
         },
 
@@ -214,7 +211,7 @@
       "animations": [
         ["idle", "/orc/spr_female_walking", 8],
         ["run", "/orc/spr_female_walking", 8],
-        ["carry", "/orc/spr_female_walking", 8],
+        ["carry", "/orc/spr_female_carrying", 8],
         ["axe", "/orc/spr_female_gathering", 4],
         ["axe-tools", "spr_gathering_pickaxe", 4]
       ],
@@ -224,7 +221,6 @@
 
         "offset_y_animations": {
           "run": 12,
-          "carry": 12,
           "idle": 12
         },
 
@@ -237,7 +233,7 @@
       "animations": [
         ["idle", "/angel/spr_male_walking", 8],
         ["run", "/angel/spr_male_walking", 8],
-        ["carry", "/angel/spr_male_walking", 8],
+        ["carry", "/angel/spr_male_carrying", 8],
         ["axe", "/angel/spr_male_gathering", 4],
         ["axe-tools", "spr_gathering_pickaxe", 4]
       ],
@@ -247,7 +243,6 @@
 
         "offset_y_animations": {
           "run": 12,
-          "carry": 12,
           "idle": 12
         },
 
@@ -259,7 +254,7 @@
       "animations": [
         ["idle", "/angel/spr_female_walking", 8],
         ["run", "/angel/spr_female_walking", 8],
-        ["carry", "/angel/spr_female_walking", 8],
+        ["carry", "/angel/spr_female_carrying", 8],
         ["axe", "/angel/spr_female_gathering", 4],
         ["axe-tools", "spr_gathering_pickaxe", 4]
       ],
@@ -269,7 +264,6 @@
 
         "offset_y_animations": {
           "run": 12,
-          "carry": 12,
           "idle": 12
         },
 

@@ -84,8 +84,8 @@ class Game:
 
                     continue  # skip everything, as npc is terminated
 
-            # npc is moving and NOT doing an action
-            if not action_info["doing_action"]:
+            # npc is moving and NOT doing an action ( AND NPC IS NOTTTTT AN ITEM
+            if not action_info["doing_action"] and npc["parent_type"] != "item":
                 if general_info["x"] != prev_x:
                     if action_info["action_type"] != "carrying": self.animations.switch_animation(npc, "run")
                     general_info["xscale"] = math.copysign(1, general_info["x"] - prev_x)
