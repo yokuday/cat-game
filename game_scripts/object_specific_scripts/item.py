@@ -39,7 +39,7 @@ class Item:
         self.npc_jumping_frames = [2, 4, 4, 0, 1, 4, 4, 0, 2]
         self.max_animation_tick = 5
 
-    def step(self, npc):
+    def step(self, npc, effects):
         general_info = npc["general_info"]
         scale = general_info["scale"]
 

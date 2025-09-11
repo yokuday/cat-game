@@ -1,3 +1,5 @@
+import uuid
+
 import pyray as pr
 from useful_draw_functions import *
 
@@ -16,6 +18,7 @@ class VisualEffects:
         self.next_effects = None
 
         self.size = max(int(h // 75), 1)
+        self.big_size = max(int(h // 15), 1)
 
         image = pr.gen_image_color(self.size, self.size, WHITE)
         self.pixel = pr.load_texture_from_image(image)
@@ -23,6 +26,10 @@ class VisualEffects:
 
         image = pr.gen_image_color(max(int(self.size // 2), 1), int(self.size * 3), WHITE)
         self.tall_pixel = pr.load_texture_from_image(image)
+        pr.unload_image(image)
+
+        image = pr.gen_image_color(self.big_size, self.big_size, WHITE)
+        self.big_pixel = pr.load_texture_from_image(image)
         pr.unload_image(image)
 
         self.max_effect_count = 50
@@ -84,6 +91,10 @@ class VisualEffects:
             "ocean": [""]
         }
 
+        # temporary effects
+        self.tmp_effects = {}
+            #(pos, timer, effect)
+
         # set initial effect for biome
         self.set_effects(self.player_info.info["current_biome"])
 
@@ -108,6 +119,17 @@ class VisualEffects:
             for effect in self.current_effects:
                 if self.effects.get(effect):
                     self.effects[effect]()
+
+        # visual dynamic temporary effects
+        for uuid in list(self.tmp_effects.keys()):
+            effect = self.tmp_effects[uuid]
+
+            effect[1] -= 1 / effect[3]
+
+            effect[2](effect[0], effect[1])
+
+            if effect[1] <= 0:
+                self.tmp_effects.pop(uuid)
 
     def fireflies(self):
         for i in range(self.effect_count):
@@ -220,3 +242,72 @@ class VisualEffects:
 
     def set_effects(self, biome="forest"):
         self.next_effects = self.biome_effects[biome]
+
+    def add_effect(self, pos, effect="smoke_particle"):
+        particles = {
+            "smoke_particle": [self.smoke_particle, 50],
+            "falling_leaves": [self.tree_leaves_particle, 80]
+        }
+
+        self.tmp_effects[uuid.uuid4()] = [pos, 1, particles[effect][0], particles[effect][1]]
+
+    def smoke_particle(self, pos, scale, rotation=0):
+        x, y = pos[0], pos[1]
+        progress = 1.0 - scale
+        alpha = 1.0 if progress <= 0.2 else 1.0 - ((progress - 0.2) / 0.8)
+
+        alpha /= 1.5
+
+        expansion = self.big_pixel.width * 2 + self.big_pixel.width * 3 * (1.0 - pow(1.0 - progress, 3))
+        particle_size = min(1.3 - progress, 1) * scale * 2
+
+        for i in range(20):
+            angle = (i / 20) * 3.28318 + rotation * progress * 2
+            wave = math.sin(angle * 3 + progress * 4) * 0.3 + math.sin(angle * 7 - progress * 2) * 0.15
+            radius = expansion * (1.0 + wave * 0.3) * math.cos(x + i)
+            px = x + math.cos(angle) * radius
+            py = y + math.sin(angle) * radius - progress * 10
+
+            dif_size = 0.5 + abs(math.cos(x + i * 2 + 2))
+
+            pr.draw_texture_ex(self.big_pixel, pr.Vector2(px, py), angle, particle_size * dif_size, WHITE)
+
+    def tree_leaves_particle(self, pos, scale, rotation=0):
+        x, y = pos[0], pos[1]
+        progress = 1.0 - scale
+        random_seed = math.sin(x * 0.1) * 1000
+        num_leaves = 8
+
+        for i in range(num_leaves):
+            leaf_random = math.sin(random_seed + i * 7.3) * 0.5 + 0.5
+            leaf_random2 = math.cos(random_seed + i * 13.7) * 0.5 + 0.5
+
+            start_angle = leaf_random * math.pi * 2
+            start_radius = leaf_random2 * self.big_pixel.width * 4.5
+
+            start_x = x + math.cos(start_angle) * start_radius
+            start_y = y + math.sin(start_angle) * start_radius
+
+            fall_y = progress * 120 + math.sin(progress * 2 + i) * 5
+            sway_x = math.sin(progress * 1.5 + i * 3) * 15 * (1 + progress)
+
+            px = start_x + sway_x
+            py = start_y + fall_y
+
+            if progress > 0.7:
+                alpha = 1.0 - ((progress - 0.7) / 0.3)
+            else:
+                alpha = 0.8
+
+            particle_size = 0.3
+            leaf_rotation = fall_y * 3
+
+            leaf_color = pr.fade(SOFT_GREEN, alpha)
+
+            pr.draw_texture_ex(
+                self.big_pixel,
+                pr.Vector2(px, py),
+                leaf_rotation,
+                particle_size,
+                leaf_color
+            )

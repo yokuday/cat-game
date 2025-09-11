@@ -21,12 +21,15 @@ class Tree:
         self.y = 0
         self.object_scale = 0
 
-    def step(self, npc):
+    def step(self, npc, effects):
         general_info = npc["general_info"]
         self.variable_pi += math.pi / 30
 
         general_info["rotation"] = 0
         if self.hit > 0:
+            if self.hit <= 1 / 20:
+                effects.add_effect([self.x + random.random(), self.h - 50 * self.object_scale], effect="falling_leaves")
+
             self.hit += 1 / 20
             general_info["rotation"] = math.sin(self.hit * math.pi * 2) * 5
 
@@ -52,12 +55,14 @@ class Tree:
 
         return False
 
-    def terminate(self, npc_manager):
+    def terminate(self, npc_manager, effects):
         # item amount to spawn
         item_amount = random.randint(2, 3)
 
         items_to_spawn = []
         for i in range(item_amount):
             items_to_spawn.append(npc_manager.create_npc("item_wood", coords=[self.x + ((12+i*3) * self.object_scale * self.fall_side), self.h]))
+
+        effects.add_effect([self.x + (15 * self.object_scale * self.fall_side), self.h - 15 * self.object_scale])
 
         return items_to_spawn

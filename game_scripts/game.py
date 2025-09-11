@@ -35,7 +35,21 @@ class Game:
         self.ui = MainUI(w, h, player_info, ui_window, self.font)
         self.effects = VisualEffects(w, h, player_info)
 
+        # night mode
+        self.render_texture = pr.load_render_texture(w, h)
+        self.night_mode = False
+        self.darkness_level = 0.15
+
+        self.variable_pi = 0
+
     def step(self):
+        self.variable_pi += 1 / 60
+        if self.variable_pi >= math.pi * 2:
+            self.variable_pi -= math.pi * 2
+
+        pr.begin_texture_mode(self.render_texture)
+        pr.clear_background(pr.BLANK)
+
         npcs = self.npc_manager.npcs
 
         tree_count = 0
@@ -74,17 +88,17 @@ class Game:
 
             # custom class stuff
             if npc["custom_class"]:
-                terminate = npc["custom_class"].step(npc)
+                terminate = npc["custom_class"].step(npc, self.effects)
                 if terminate:
                     npcs.pop(i)
 
                     # last terminate call
                     if hasattr(npc["custom_class"], "terminate"):
-                        npcs_to_spawn.append(npc["custom_class"].terminate(self.npc_manager))
+                        npcs_to_spawn.append(npc["custom_class"].terminate(self.npc_manager, self.effects))
 
                     continue  # skip everything, as npc is terminated
 
-            # npc is moving and NOT doing an action ( AND NPC IS NOTTTTT AN ITEM
+            # npc is moving and NOT doing an action ( AND NPC IS NOTTTTT AN ITEM )
             if not action_info["doing_action"] and npc["parent_type"] != "item":
                 if general_info["x"] != prev_x:
                     if action_info["action_type"] != "carrying": self.animations.switch_animation(npc, "run")
@@ -135,6 +149,26 @@ class Game:
             for ind in npcs_to_spawn:
                 for npc in ind:
                     npcs.insert(0, npc)
+
+        pr.end_texture_mode()
+
+        # night mode
+        if self.night_mode:
+            # Tint makes everything darker
+            tint_value = int(255 * (1 - self.darkness_level))
+            tint = pr.Color(tint_value, tint_value, tint_value, 255)
+        else:
+            tint = pr.WHITE
+
+        # Draw the render texture with tint
+        pr.draw_texture_pro(
+            self.render_texture.texture,
+            pr.Rectangle(0, 0, self.render_texture.texture.width, -self.render_texture.texture.height),
+            pr.Rectangle(0, 0, self.w, self.h),
+            pr.Vector2(0, 0),
+            0,
+            tint
+        )
 
     def game_ui(self):
         self.ui.field()

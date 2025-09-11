@@ -13,7 +13,7 @@ class Shrub:
 
         self.destruct = random.randint(60, 1800)
 
-    def step(self, npc):
+    def step(self, npc, effects):
         general_info = npc["general_info"]
 
         self.variable_pi += math.pi / 120
