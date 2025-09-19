@@ -19,7 +19,9 @@ class UIBridge:
         self.pending_messages = deque()  # Queue to store unsent messages
         self.retry_thread = None
         self.should_retry = True
-        self._setup_connection(ui_script, port)
+        while True:
+            if self._setup_connection(ui_script, port):
+                break
         self._start_retry_thread()
 
         self.prepared_data = {}
@@ -46,7 +48,10 @@ class UIBridge:
             self.client_socket, _ = self.socket.accept()
             self.client_socket.settimeout(0.001)  # Non-blocking
 
+            return True
+
         except Exception as e:
+            return False
             print(f"UI connection failed: {e}")
 
     def _start_retry_thread(self):

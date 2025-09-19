@@ -25,9 +25,11 @@ class BiomeSection:
 
         self.biomes = {
             "forest": [0, 0, SOFT_GREEN, "Forest", 0],  # chosen_scale, hover_scale, b_color, title, required level
-            "icy_mountain": [0, 0, LIGHT_BLUE, "Icy Mountain", 0],
-            "volcano": [0, 0, SOFT_RED, "Volcano", 20],
-            "ocean": [0, 0, BLUE, "Ocean", 100]
+            "fall_forest": [0, 0, ORANGE, "Autumn Forest", 0],
+            "spring_forest": [0, 0, PURPLE, "Sakura Forest", 0],
+            "pine_forest": [0, 0, SOFT_BROWN, "Pine Forest", 0],
+            "beach": [0, 0, YELLOW, "Beach", 0],
+            "swamp": [0, 0, DARK_GRAY, "Swamp", 0],
         }
         self.current_biome = "forest"
 

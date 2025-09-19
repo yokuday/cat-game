@@ -1,4 +1,4 @@
-import uuid, random, math, json
+import uuid, random, math, json, pyray as pr
 from game_scripts.object_specific_scripts.tree import Tree
 from game_scripts.object_specific_scripts.item import Item
 from game_scripts.object_specific_scripts.storage import Storage
@@ -32,11 +32,14 @@ class NPCManager:
         self.item_count = 0
 
     def create_npc(self, npc_type="goblin", coords=None):
+        current_biome = self.player_info.info["current_biome"]
         extra_info = self.animations.animation_info[npc_type]["extra_info"]
         parent_type = extra_info.get("parent_type", npc_type)
 
         if coords is None:
             coords = [random.randint(200, self.w - 100), self.h]
+            if current_biome == "beach":
+                coords = [random.randint(self.w * 0.2, self.w * 0.8), self.h]
 
         custom_classes = {
             "node": Tree(self.w, self.h),
@@ -96,8 +99,11 @@ class NPCManager:
         }
 
     def idle(self, npc):
+        current_biome = self.player_info.info["current_biome"]
         actions = npc["action_info"]
         spd = npc["general_info"]["spd"]
+
+        delta_time = pr.get_frame_time() * 60
 
         # check if npc is doing any action
         if actions["pathfinding_values"] is None and actions["doing_action"] is False:
@@ -106,14 +112,14 @@ class NPCManager:
 
                 # assign a random coord for player to travel to
                 if actions["idle_cooldown"] <= 0:
-                    actions["idle_goal"] = random.randint(150, self.w - 100)
+                    actions["idle_goal"] = random.randint(150, self.w - 100) if current_biome != "beach" else random.randint(self.w * 0.2, self.w * 0.8)
                     actions["idle_cooldown"] = random.randint(30, 180)
             else:
                 # if npc arrived at goal, stop
                 if abs(npc["general_info"]["x"] - actions["idle_goal"]) <= spd:
                     actions["idle_goal"] = None
                 else:
-                    npc["general_info"]["x"] += spd * math.copysign(1, actions["idle_goal"] - npc["general_info"]["x"])
+                    npc["general_info"]["x"] += spd * math.copysign(1, actions["idle_goal"] - npc["general_info"]["x"]) * delta_time
 
     def action(self, npc):
         actions = npc["action_info"]
@@ -229,7 +235,8 @@ class NPCManager:
                         actions["doing_action"] = True
                         return 0
 
-                info["x"] += spd * math.copysign(1, goal_x - x)
+                delta_time = pr.get_frame_time() * 60
+                info["x"] += spd * math.copysign(1, goal_x - x) * delta_time
             else:
                 # perform action and then release
                 self.animations.switch_animation(npc, "axe")

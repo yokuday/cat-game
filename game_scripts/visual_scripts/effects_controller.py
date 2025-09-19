@@ -1,15 +1,18 @@
 import uuid
 
 import pyray as pr
+
 from useful_draw_functions import *
 
 import math, random
 
 
 class VisualEffects:
-    def __init__(self, w, h, player_info):
+    def __init__(self, w, h, player_info, y_offset, game):
         self.w = w
         self.h = h
+
+        self.game = game
 
         self.player_info = player_info
 
@@ -77,18 +80,34 @@ class VisualEffects:
                 random.uniform(-1, 1)  # horizontal drift
             ])
 
+        # waves
+        self.waves = Waves(self.w, self.h, player_info, y_offset, self)
+
+        # fog
+        self.fog = RainStorm(self.w, self.h, self.game)
+
+        # sunshine
+        self.sunshine = SunshineEffect(self.w, self.h)
+
         self.effects = {
             "fireflies": self.fireflies,
             "rain": self.rain,
             "snow": self.snow,
-            "lava pops": self.lava_pops
+            "lava pops": self.lava_pops,
+            "waves": self.waves.step,
+            "fog": self.fog.step,
+            "sunshine": self.sunshine.step
         }
 
+        self.before_step = ["waves"]
+
         self.biome_effects = {
-            "forest": ["rain", "fireflies"],
-            "icy_mountain": ["snow"],
-            "volcano": ["lava pops"],
-            "ocean": [""]
+            "forest": ["rain"],
+            "fall_forest": [""],
+            "spring_forest": [""],
+            "pine_forest": ["sunshine"],
+            "beach": ["waves"],
+            "swamp": ["fog"]
         }
 
         # temporary effects
@@ -100,36 +119,51 @@ class VisualEffects:
 
         self.variable_pi = 0
 
-    def step(self):
-        self.variable_pi += 1 / 1000
-        if self.variable_pi >= 2 * math.pi:
-            self.variable_pi -= 2 * math.pi
+    def step(self, before_step=False):
+        delta_time = pr.get_frame_time() * 60
 
-        if self.next_effects:
-            if self.scale > 0:
-                self.scale = max(self.scale - 1 / 15, 0)
+        if not before_step:
+            self.variable_pi += 1 / 1000 * delta_time
+            if self.variable_pi >= 2 * math.pi:
+                self.variable_pi -= 2 * math.pi
+
+            if self.next_effects:
+                if self.scale > 0:
+                    self.scale = max(self.scale - 1 / 15, 0)
+                else:
+                    self.current_effects = self.next_effects
+                    self.next_effects = None
+
+                    # RESET WHITEOUT
+                    self.game.whiteness = 0
+                    self.game.white_mode = False
             else:
-                self.current_effects = self.next_effects
-                self.next_effects = None
+                self.scale = min(self.scale + 1 / 15, 1)
+
+            # draw visual effects
+            if self.scale > 0:
+                for effect in self.current_effects:
+                    if self.effects.get(effect):
+                        if effect not in self.before_step:
+                            self.effects[effect]()
+
+            # visual dynamic temporary effects
+            for uuid in list(self.tmp_effects.keys()):
+                effect = self.tmp_effects[uuid]
+
+                effect[1] -= 1 / effect[3] * delta_time
+
+                effect[2](effect[0], effect[1])
+
+                if effect[1] <= 0:
+                    self.tmp_effects.pop(uuid)
         else:
-            self.scale = min(self.scale + 1 / 15, 1)
-
-        # draw visual effects
-        if self.scale > 0:
-            for effect in self.current_effects:
-                if self.effects.get(effect):
-                    self.effects[effect]()
-
-        # visual dynamic temporary effects
-        for uuid in list(self.tmp_effects.keys()):
-            effect = self.tmp_effects[uuid]
-
-            effect[1] -= 1 / effect[3]
-
-            effect[2](effect[0], effect[1])
-
-            if effect[1] <= 0:
-                self.tmp_effects.pop(uuid)
+            # draw BEFORE visual effects
+            if self.scale > 0:
+                for effect in self.current_effects:
+                    if self.effects.get(effect):
+                        if effect in self.before_step:
+                            self.effects[effect]()
 
     def fireflies(self):
         for i in range(self.effect_count):
@@ -302,7 +336,12 @@ class VisualEffects:
             particle_size = 0.3
             leaf_rotation = fall_y * 3
 
-            leaf_color = pr.fade(SOFT_GREEN, alpha)
+            colors = {
+                "forest": SOFT_GREEN,
+                "fall_forest": ORANGE
+            }
+
+            leaf_color = pr.fade(colors.get(self.player_info.info["current_biome"], SOFT_GREEN), alpha)
 
             pr.draw_texture_ex(
                 self.big_pixel,
@@ -311,3 +350,226 @@ class VisualEffects:
                 particle_size,
                 leaf_color
             )
+
+
+class Waves:
+    class Ripple:
+        def __init__(self):
+            self.x = 0
+            self.strength = 0
+            self.time = 0
+
+    def __init__(self, w, h, player_info, y_offset, parent):
+        self.WATER_SEGMENTS = w // 10
+        self.WATER_WIDTH = w
+        self.WATER_HEIGHT = 100
+        self.WATER_Y = h + y_offset // 2
+        self.y_offset = y_offset
+
+        self.player_info = player_info
+
+        self.parent = parent
+
+        self.ripples = [self.Ripple() for _ in range(8)]
+
+    def step(self):
+        dt = pr.get_frame_time()
+        current_time = pr.get_time() * 2
+
+        # Update ripples
+        for r in self.ripples:
+            if r.strength > 0.01:
+                r.time += dt * 5 * 1.25  # Speed of ripple expansion
+                r.strength *= 0.95  # Decay rate
+                if r.time > 10.0:
+                    r.strength = 0
+
+        # Add ripple on click
+        if pr.is_mouse_button_pressed(0):
+            self.add_ripple(pr.get_mouse_x(), 1)
+
+        # Draw water surface with waves
+        points = []
+        for i in range(self.WATER_SEGMENTS + 1):
+            x = i * (self.WATER_WIDTH / self.WATER_SEGMENTS)
+            y = self.WATER_Y - self.y_offset * 2 * (1 - self.parent.scale)
+
+            # Base wave
+            y += math.sin(x * 0.02 + current_time * 2 * 2) * self.y_offset / 5
+            y += math.sin(x * 0.01 + current_time * 1.5 * 2) * self.y_offset / 6
+
+            # Ripple contributions
+            for r in self.ripples:
+                if r.strength > 0.01:
+                    dist = abs(x - r.x)
+                    if dist < r.time * 50:  # Ripple radius
+                        decay = r.strength * math.exp(-dist * 0.01)
+                        y += math.sin(dist * 0.1 - r.time * 5) * decay * 20
+
+            points.append((x, y))
+
+        # Draw water as filled polygon
+        for i in range(len(points) - 1):
+            # Draw water body (filled)
+            pr.draw_rectangle(int(points[i][0]), int(points[i][1]),
+                              int((self.WATER_WIDTH / self.WATER_SEGMENTS)),
+                              (100 + int(points[i][1])),
+                              pr.Color(28, 107, 160, 255))
+
+            # Draw water surface line
+            pr.draw_line_ex(pr.Vector2(int(points[i][0]), int(points[i][1])),
+                            pr.Vector2(int(points[i + 1][0]), int(points[i + 1][1])),
+                            abs(self.y_offset) // 10, WHITE)
+
+    def add_ripple(self, x_pos, strength=1.0):
+        for r in self.ripples:
+            if r.strength < 0.01:
+                r.x = x_pos
+                r.strength = strength
+                r.time = 0
+                break
+
+
+class RainStorm:
+    def __init__(self, w, h, game):
+        self.width, self.height = w, h
+        self.rain_drops = [
+            [random.randint(0, w), random.randint(-h, 0), random.uniform(15, 25), random.uniform(0.5, 1.5)] for _ in
+            range(200)]
+        self.lightning_time = 0
+        self.lightning_flash = 0
+        self.next_lightning = random.uniform(2, 5)
+        self.lightning_branches = []
+        self.lightning_glow = 0
+        self.strike_x = 0
+        self.strike_progress = 0
+
+        self.game = game
+
+    def generate_lightning(self, x, y, end_y, angle=math.pi / 2, depth=0, main=True):
+        if y >= end_y or depth > 4: return
+        segments = []
+        while y < end_y:
+            next_y = y + random.randint(20, 50)
+            offset = random.randint(-40, 40) if not main else random.randint(-20, 20)
+            next_x = x + offset
+            segments.append((x, y, next_x, next_y, max(1, 8 - depth * 2) if main else max(1, 5 - depth)))
+            if random.random() < (0.4 if main else 0.2) and depth < 3:
+                branch_angle = angle + random.uniform(-math.pi / 3, math.pi / 3)
+                self.generate_lightning(next_x, next_y, end_y + random.randint(-50, 50), branch_angle, depth + 1, False)
+            x, y = next_x, next_y
+        self.lightning_branches.extend(segments)
+
+    def step(self):
+        dt = pr.get_frame_time()
+        self.lightning_time += dt
+
+        for drop in self.rain_drops:
+            drop[1] += drop[2] * self.height / 4 * dt * drop[3]
+            drop[0] += drop[2] * self.height / 20 * dt
+            if drop[1] > self.height: drop[1] = random.randint(-100, -10); drop[0] = random.randint(-50, self.width)
+
+        if self.lightning_time > self.next_lightning:
+            self.lightning_flash = 1.0
+            self.lightning_glow = 1.5
+            self.strike_progress = 0
+            self.lightning_branches = []
+            self.strike_x = random.randint(self.width // 4, 3 * self.width // 4)
+            self.generate_lightning(self.strike_x, -20, self.height * 0.9)
+            for _ in range(random.randint(1, 3)):
+                self.generate_lightning(self.strike_x + random.randint(-100, 100), random.randint(0, 100),
+                                        self.height * 0.7, depth=1, main=False)
+            self.lightning_time = 0
+            self.next_lightning = random.uniform(2, 8)
+
+        if self.lightning_glow > 0:
+            self.game.white_mode = True
+            self.game.whiteness = self.lightning_glow
+
+            # pr.draw_rectangle(0, 0, self.width, self.height,
+            #                   pr.Color(255, 255, 255, int(min(self.lightning_glow * 150, 255))))
+            self.lightning_glow -= dt * 2
+        else:
+            self.game.white_mode = False
+
+        if self.lightning_flash > 0:
+            self.strike_progress = min(1.0, self.strike_progress + dt * 12)
+            pulse = 1 + math.sin(self.lightning_flash * 30) * 0.3
+            max_y = self.height * 0.9 * self.strike_progress
+
+            for x1, y1, x2, y2, thickness in self.lightning_branches:
+                if y1 < max_y and y2 < max_y:
+                    for j in range(3):
+                        glow_thick = thickness * (4 - j) * pulse
+                        alpha = int(self.lightning_flash * (80 - j * 20))
+                        pr.draw_line_ex(pr.Vector2(x1, y1), pr.Vector2(x2, min(y2, max_y)), glow_thick,
+                                        pr.Color(220, 220, 255, alpha))
+                    pr.draw_line_ex(pr.Vector2(x1, y1), pr.Vector2(x2, min(y2, max_y)), thickness * pulse * 1.5,
+                                    pr.WHITE)
+
+            if self.strike_progress > 0.8:
+                pr.draw_circle_gradient(self.strike_x, int(max_y), int(200 * self.lightning_flash * pulse),
+                                        pr.Color(255, 255, 255, int(self.lightning_flash * 100)),
+                                        pr.Color(200, 200, 255, 0))
+
+            self.lightning_flash -= dt * 1.5
+
+        for drop in self.rain_drops:
+            pr.draw_line_ex(pr.Vector2(drop[0], drop[1]), pr.Vector2(drop[0] - self.width / 500, drop[1] - drop[2]), 1 + drop[3],
+                            pr.Color(150, 160, 200, 180))
+            if random.random() < 0.001: pr.draw_circle(int(drop[0]), int(self.height - 5), random.randint(2, 4),
+                                                       pr.Color(150, 160, 200, 50))
+
+
+class SunshineEffect:
+    def __init__(self, w, h):
+        self.width, self.height = w, h
+        self.time = 0
+        self.rays = []
+        for i in range(8):
+            self.rays.append({
+                'y': random.randint(0, h),
+                'x': random.randint(0, w),
+                'strength': random.uniform(0.3, 1.0),
+                'fade_offset': random.uniform(0, math.pi * 2),
+                'width': random.uniform(30, 80),
+                'angle': random.uniform(-0.15, 0.15)
+            })
+
+    def step(self):
+        dt = pr.get_frame_time()
+        self.time += dt
+
+        for ray in self.rays:
+            fade = (math.sin(self.time * 0.5 + ray['fade_offset']) + 1) * 0.5
+            strength = ray['strength'] * fade
+
+            if fade < 0.1 and random.random() < 0.01:
+                ray['y'] = random.randint(0, self.height)
+                ray['width'] = random.uniform(30, 80)
+                ray['strength'] = random.uniform(0.3, 1.0)
+                ray['angle'] = random.uniform(-0.15, 0.15)
+
+            start_x = ray['x']
+            end_x = ray['x'] + self.width / 10
+            start_y = 0
+            end_y = self.height
+
+            for i in range(10):
+                segment = i / 10
+                x1 = start_x + (end_x - start_x) * segment
+                y1 = start_y + (end_y - start_y) * segment
+                x2 = start_x + (end_x - start_x) * (segment + 0.1)
+
+                width = ray['width'] * (1 + segment * 0.3)
+
+                for j in range(4):
+                    current_width = width * (1 - j * 0.2)
+                    alpha = int(strength * 30 / (j + 1))
+
+                    pr.draw_rectangle_pro(
+                        pr.Rectangle(x1, y1 - current_width / 2, x2 - x1, current_width),
+                        pr.Vector2(0, 0),
+                        math.degrees(ray['angle']),
+                        pr.Color(255, 245, 200, alpha)
+                    )

@@ -102,8 +102,9 @@ class GameAnimations:
     def update_animation(self, npc):
         anim_info = npc["animation_info"]
 
+        delta_time = pr.get_frame_time() * 60
         if anim_info["animation_speed"] != -1:  # -1 animation means NO animation
-            anim_info["animation_tick"] += 1
+            anim_info["animation_tick"] += 1 * delta_time
             if anim_info["animation_tick"] >= anim_info["animation_speed"]:
                 anim_info["animation_tick"] = 0
                 current_anim = npc["animations"][anim_info["current_animation"]]

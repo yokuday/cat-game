@@ -67,6 +67,7 @@ class Window:
         pr.init_window(self.width, self.height, "Idle - game")
         pr.set_window_position(0, self.max_height - self.height - self.taskbar_height)
 
+        monitor_refresh_rate = pr.get_monitor_refresh_rate(pr.get_current_monitor())
         pr.set_target_fps(60)
 
         # set window click through

@@ -1,34 +1,67 @@
 {
-  "grass_1": {
+  "forest_shrub": {
     "animations": [
-      ["idle", "spr_grass_1", 1]
+      ["idle", "spr_weeds", 1]
     ],
-    "sprite_folder": "nodes",
+    "sprite_folder": "biomes/forest",
     "extra_info": {
       "offset_y": 6,
-      "height_multiplier": 0.175,
+      "height_multiplier": 0.19,
       "parent_type": "shrub"
     }
   },
-  "grass_2": {
+  "fall_forest_shrub": {
     "animations": [
-      ["idle", "spr_grass_2", 1]
+      ["idle", "spr_weeds", 1]
     ],
-    "sprite_folder": "nodes",
+    "sprite_folder": "biomes/fall_forest",
     "extra_info": {
-      "offset_y": 2,
-      "height_multiplier": 0.1,
+      "offset_y": 6,
+      "height_multiplier": 0.19,
       "parent_type": "shrub"
     }
   },
-  "grass_3": {
+  "spring_forest_shrub": {
     "animations": [
-      ["idle", "spr_grass_3", 1]
+      ["idle", "spr_weeds", 1]
     ],
-    "sprite_folder": "nodes",
+    "sprite_folder": "biomes/spring_forest",
     "extra_info": {
-      "offset_y": 2,
-      "height_multiplier": 0.1,
+      "offset_y": 6,
+      "height_multiplier": 0.19,
+      "parent_type": "shrub"
+    }
+  },
+  "pine_forest_shrub": {
+    "animations": [
+      ["idle", "spr_weeds", 1]
+    ],
+    "sprite_folder": "biomes/pine_forest",
+    "extra_info": {
+      "offset_y": 6,
+      "height_multiplier": 0.19,
+      "parent_type": "shrub"
+    }
+  },
+  "beach_shrub": {
+    "animations": [
+      ["idle", "spr_weeds", 1]
+    ],
+    "sprite_folder": "biomes/beach",
+    "extra_info": {
+      "offset_y": 6,
+      "height_multiplier": 0.19,
+      "parent_type": "shrub"
+    }
+  },
+  "swamp_shrub": {
+    "animations": [
+      ["idle", "spr_weeds", 1]
+    ],
+    "sprite_folder": "biomes/swamp",
+    "extra_info": {
+      "offset_y": 6,
+      "height_multiplier": 0.19,
       "parent_type": "shrub"
     }
   }

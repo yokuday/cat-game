@@ -1,4 +1,5 @@
 import math, random
+import pyray as pr
 
 
 class Tree:
@@ -21,14 +22,34 @@ class Tree:
         self.y = 0
         self.object_scale = 0
 
+        # current tree frame
+        self.current_growth_frame = 0
+        self.max_tree_growth = 2
+
+        self.growth_max_time = 300
+        self.current_growth_time = random.randint(self.growth_max_time // 2, self.growth_max_time)
+
+        self.occupied = "STILL GROWING"  # set occupied, so npcs can't chop down during growing
+
     def step(self, npc, effects):
+        delta_time = pr.get_frame_time() * 60
+
         general_info = npc["general_info"]
         self.variable_pi += math.pi / 30
+
+        # set tree growth stage
+        npc["animation_info"]["current_frame"] = self.max_tree_growth - self.current_growth_frame
+        self.current_growth_time -= delta_time
+        if self.current_growth_time <= 0 and self.current_growth_frame < self.max_tree_growth:
+            self.current_growth_frame += 1
+            self.current_growth_time = random.randint(self.growth_max_time // 2, self.growth_max_time)
+            if self.current_growth_frame == self.max_tree_growth:
+                self.occupied = None
 
         general_info["rotation"] = 0
         if self.hit > 0:
             if self.hit <= 1 / 20:
-                effects.add_effect([self.x + random.random(), self.h - 50 * self.object_scale], effect="falling_leaves")
+                pass#effects.add_effect([self.x + random.random(), self.h - 50 * self.object_scale], effect="falling_leaves")
 
             self.hit += 1 / 20
             general_info["rotation"] = math.sin(self.hit * math.pi * 2) * 5
@@ -37,7 +58,7 @@ class Tree:
                 self.hit = 0
 
         if self.fall > 0:
-            self.fall += 1 / 12
+            self.fall += 1 / 12 * delta_time
 
             general_info["rotation"] = (math.pow(self.fall, 3) - 2.5 * math.pow(self.fall, 2) + 1) * self.fall_side * 3
             general_info["alpha"] = min(1 - abs(general_info["rotation"]) / 90, 1)
@@ -55,13 +76,13 @@ class Tree:
 
         return False
 
-    def terminate(self, npc_manager, effects):
+    def terminate(self, npc_manager, effects, current_biome):
         # item amount to spawn
         item_amount = random.randint(2, 3)
 
         items_to_spawn = []
         for i in range(item_amount):
-            items_to_spawn.append(npc_manager.create_npc("item_wood", coords=[self.x + ((12+i*3) * self.object_scale * self.fall_side), self.h]))
+            items_to_spawn.append(npc_manager.create_npc(f"item_{current_biome}_wood", coords=[self.x + ((12+i*3) * self.object_scale * self.fall_side), self.h]))
 
         effects.add_effect([self.x + (15 * self.object_scale * self.fall_side), self.h - 15 * self.object_scale])
 

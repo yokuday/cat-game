@@ -35,10 +35,6 @@ class Window:
         self.width = int(self.height * (
                     self.primary_ui_sprite.width / self.primary_ui_sprite_frames / self.primary_ui_sprite.height))
 
-        for a in range(100):
-            print(self.primary_ui_sprite.width, self.primary_ui_sprite.height)
-            print(self.width, self.height)
-
         pr.set_window_size(self.width + self.extra_width, self.height)
         pr.set_window_position((self.max_width - self.width - self.extra_width) // 2,
                                (self.max_height - self.height) // 2)

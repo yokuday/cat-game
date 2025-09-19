@@ -1,9 +1,64 @@
 {
-  "item_wood": {
+  "item_forest_wood": {
     "animations": [
       ["idle", "spr_wood", 1]
     ],
-    "sprite_folder": "items",
+    "sprite_folder": "biomes/forest",
+    "extra_info": {
+      "offset_y": 7,
+      "height_multiplier": 0.11,
+      "parent_type": "item"
+    }
+  },
+  "item_fall_forest_wood": {
+    "animations": [
+      ["idle", "spr_wood", 1]
+    ],
+    "sprite_folder": "biomes/fall_forest",
+    "extra_info": {
+      "offset_y": 10,
+      "height_multiplier": 0.21,
+      "parent_type": "item"
+    }
+  },
+  "item_spring_forest_wood": {
+    "animations": [
+      ["idle", "spr_wood", 1]
+    ],
+    "sprite_folder": "biomes/spring_forest",
+    "extra_info": {
+      "offset_y": 10,
+      "height_multiplier": 0.21,
+      "parent_type": "item"
+    }
+  },
+  "item_pine_forest_wood": {
+    "animations": [
+      ["idle", "spr_wood", 1]
+    ],
+    "sprite_folder": "biomes/pine_forest",
+    "extra_info": {
+      "offset_y": 10,
+      "height_multiplier": 0.21,
+      "parent_type": "item"
+    }
+  },
+  "item_beach_wood": {
+    "animations": [
+      ["idle", "spr_wood", 1]
+    ],
+    "sprite_folder": "biomes/beach",
+    "extra_info": {
+      "offset_y": 10,
+      "height_multiplier": 0.21,
+      "parent_type": "item"
+    }
+  },
+  "item_swamp_wood": {
+    "animations": [
+      ["idle", "spr_wood", 1]
+    ],
+    "sprite_folder": "biomes/swamp",
     "extra_info": {
       "offset_y": 10,
       "height_multiplier": 0.21,
