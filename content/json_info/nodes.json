@@ -12,6 +12,19 @@
     },
     "included_animations": ["item"]
   },
+  "fishing_spot": {
+    "animations": [
+      ["idle", "spr_storage", 1]
+    ],
+    "sprite_folder": "decorations",
+    "extra_info": {
+      "height_multiplier": 0.2,
+
+      "origin_point": "middle-bottom",
+      "parent_type": "node"
+    },
+    "included_animations": ["item"]
+  },
   "oak_tree": {
     "animations": [
       ["idle", "spr_oak_tree", 1]
@@ -52,6 +65,19 @@
       "parent_type": "node"
     }
   },
+  "forest_stone": {
+    "animations": [
+      ["idle", "spr_stone", 3]
+    ],
+    "sprite_folder": "biomes/forest",
+    "extra_info": {
+      "height_multiplier": 0.35,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "node"
+    }
+  },
   "fall_forest_tree": {
     "animations": [
       ["idle", "spr_tree", 3]
@@ -59,6 +85,19 @@
     "sprite_folder": "biomes/fall_forest",
     "extra_info": {
       "height_multiplier": 0.8,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "node"
+    }
+  },
+  "fall_forest_stone": {
+    "animations": [
+      ["idle", "spr_stone", 3]
+    ],
+    "sprite_folder": "biomes/fall_forest",
+    "extra_info": {
+      "height_multiplier": 0.35,
 
       "origin_point": "middle-bottom",
       "animation_speed": -1,
@@ -78,6 +117,19 @@
       "parent_type": "node"
     }
   },
+  "spring_forest_stone": {
+    "animations": [
+      ["idle", "spr_stone", 3]
+    ],
+    "sprite_folder": "biomes/spring_forest",
+    "extra_info": {
+      "height_multiplier": 0.35,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "node"
+    }
+  },
   "pine_forest_tree": {
     "animations": [
       ["idle", "spr_tree", 3]
@@ -85,6 +137,19 @@
     "sprite_folder": "biomes/pine_forest",
     "extra_info": {
       "height_multiplier": 0.8,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "node"
+    }
+  },
+  "pine_forest_stone": {
+    "animations": [
+      ["idle", "spr_stone", 3]
+    ],
+    "sprite_folder": "biomes/pine_forest",
+    "extra_info": {
+      "height_multiplier": 0.35,
 
       "origin_point": "middle-bottom",
       "animation_speed": -1,
@@ -104,6 +169,19 @@
       "parent_type": "node"
     }
   },
+  "beach_stone": {
+    "animations": [
+      ["idle", "spr_stone", 3]
+    ],
+    "sprite_folder": "biomes/beach",
+    "extra_info": {
+      "height_multiplier": 0.35,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "node"
+    }
+  },
   "swamp_tree": {
     "animations": [
       ["idle", "spr_tree", 3]
@@ -111,6 +189,19 @@
     "sprite_folder": "biomes/swamp",
     "extra_info": {
       "height_multiplier": 0.8,
+
+      "origin_point": "middle-bottom",
+      "animation_speed": -1,
+      "parent_type": "node"
+    }
+  },
+  "swamp_stone": {
+    "animations": [
+      ["idle", "spr_stone", 3]
+    ],
+    "sprite_folder": "biomes/swamp",
+    "extra_info": {
+      "height_multiplier": 0.35,
 
       "origin_point": "middle-bottom",
       "animation_speed": -1,

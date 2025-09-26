@@ -87,7 +87,7 @@ class VisualEffects:
         self.fog = RainStorm(self.w, self.h, self.game)
 
         # sunshine
-        self.sunshine = SunshineEffect(self.w, self.h)
+        self.sunshine = SunshineEffect(self.w, self.h, self)
 
         self.effects = {
             "fireflies": self.fireflies,
@@ -102,12 +102,12 @@ class VisualEffects:
         self.before_step = ["waves"]
 
         self.biome_effects = {
-            "forest": ["rain"],
-            "fall_forest": [""],
-            "spring_forest": [""],
-            "pine_forest": ["sunshine"],
+            "forest": ["waves", "rain"],
+            "fall_forest": ["waves"],
+            "spring_forest": ["waves"],
+            "pine_forest": ["waves"],
             "beach": ["waves"],
-            "swamp": ["fog"]
+            "swamp": ["waves"]
         }
 
         # temporary effects
@@ -373,8 +373,19 @@ class Waves:
         self.ripples = [self.Ripple() for _ in range(8)]
 
     def step(self):
+        current_biome = self.parent.player_info.info["current_biome"]
+
         dt = pr.get_frame_time()
         current_time = pr.get_time() * 2
+
+        colors = {
+            "beach": pr.Color(28, 107, 160, 255),
+            "forest": pr.Color(92, 179, 255, 255),
+            "pine_forest": pr.Color(14, 90, 156, 255),
+            "fall_forest": pr.Color(92, 179, 255, 255),
+            "spring_forest": pr.Color(92, 179, 255, 255),
+            "swamp": pr.Color(92, 179, 255, 255)
+        }
 
         # Update ripples
         for r in self.ripples:
@@ -414,7 +425,7 @@ class Waves:
             pr.draw_rectangle(int(points[i][0]), int(points[i][1]),
                               int((self.WATER_WIDTH / self.WATER_SEGMENTS)),
                               (100 + int(points[i][1])),
-                              pr.Color(28, 107, 160, 255))
+                              colors[current_biome])
 
             # Draw water surface line
             pr.draw_line_ex(pr.Vector2(int(points[i][0]), int(points[i][1])),
@@ -522,18 +533,21 @@ class RainStorm:
 
 
 class SunshineEffect:
-    def __init__(self, w, h):
+    def __init__(self, w, h, parent):
+        self.parent = parent
+
         self.width, self.height = w, h
         self.time = 0
         self.rays = []
-        for i in range(8):
+        for i in range(10):
+            x = random.randint(0, w)
+            while any(abs(x - r['x']) < w / 30 for r in self.rays):
+                x = random.randint(0, w)
             self.rays.append({
-                'y': random.randint(0, h),
-                'x': random.randint(0, w),
+                'x': x,
                 'strength': random.uniform(0.3, 1.0),
                 'fade_offset': random.uniform(0, math.pi * 2),
-                'width': random.uniform(30, 80),
-                'angle': random.uniform(-0.15, 0.15)
+                'width': random.uniform(0.5, 0.8),
             })
 
     def step(self):
@@ -541,35 +555,28 @@ class SunshineEffect:
         self.time += dt
 
         for ray in self.rays:
-            fade = (math.sin(self.time * 0.5 + ray['fade_offset']) + 1) * 0.5
+            fade = abs(math.sin(self.time * 0.15 + ray['fade_offset']) + 1)
             strength = ray['strength'] * fade
 
-            if fade < 0.1 and random.random() < 0.01:
-                ray['y'] = random.randint(0, self.height)
-                ray['width'] = random.uniform(30, 80)
+            width_change = 1
+            if strength < 0.80:
+                width_change = max(0, (strength - 0.65) / 0.15)
+
+            if strength <= 0.65:
+                new_x = random.randint(0, self.width)
+                while any(abs(new_x - r['x']) < self.width / 30 for r in self.rays if r != ray):
+                    new_x = random.randint(0, self.width)
+                ray['x'] = new_x
+                ray['width'] = random.uniform(0.5, 0.8)
                 ray['strength'] = random.uniform(0.3, 1.0)
-                ray['angle'] = random.uniform(-0.15, 0.15)
 
             start_x = ray['x']
             end_x = ray['x'] + self.width / 10
-            start_y = 0
-            end_y = self.height
+            start_y = -self.height / 5
+            end_y = self.height * 1.2
 
-            for i in range(10):
-                segment = i / 10
-                x1 = start_x + (end_x - start_x) * segment
-                y1 = start_y + (end_y - start_y) * segment
-                x2 = start_x + (end_x - start_x) * (segment + 0.1)
+            alpha = min(max(int(255 * strength * 0.25), 5), 255)
 
-                width = ray['width'] * (1 + segment * 0.3)
-
-                for j in range(4):
-                    current_width = width * (1 - j * 0.2)
-                    alpha = int(strength * 30 / (j + 1))
-
-                    pr.draw_rectangle_pro(
-                        pr.Rectangle(x1, y1 - current_width / 2, x2 - x1, current_width),
-                        pr.Vector2(0, 0),
-                        math.degrees(ray['angle']),
-                        pr.Color(255, 245, 200, alpha)
-                    )
+            pr.draw_line_ex(pr.Vector2(start_x, start_y), pr.Vector2(end_x, end_y),
+                            int(self.width / 40 * ray['width'] * width_change * self.parent.scale),
+                            pr.Color(168, 168, 64, alpha))

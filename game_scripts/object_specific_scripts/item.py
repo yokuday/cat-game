@@ -39,7 +39,7 @@ class Item:
         self.npc_jumping_frames = [2, 4, 4, 0, 1, 4, 4, 0, 2]
         self.max_animation_tick = 5
 
-    def step(self, npc, effects):
+    def step(self, npc, effects, npc_manager):
         general_info = npc["general_info"]
         scale = general_info["scale"]
 
@@ -55,6 +55,9 @@ class Item:
             self.variable_pi2 = 0
 
         # popup
+        if "fish" in npc["type"]:
+            self.popup_scale = 1
+
         self.popup_scale = min(self.popup_scale + 1 / 10, 1)
         general_info["change_scale"] = self.popup_scale
 

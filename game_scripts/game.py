@@ -53,7 +53,10 @@ class Game:
         self.white_shader = pr.load_shader("content/shaders/vertex_shader.frag", "content/shaders/white_shader.frag")
         self.whiteness_loc = pr.get_shader_location(self.white_shader, "whiteness")
 
+        # misc
         self.variable_pi = 0
+
+        self.just_destroyed_items = 5  # 5 frame buffer
 
     def step(self):
         current_biome = self.player_info.info["current_biome"]
@@ -81,6 +84,9 @@ class Game:
 
                        "pirate_male", "pirate_female", "orc_male", "orc_female", "angel_male", "angel_female"]
 
+        if self.player_info.biome_destroy_objects:
+            self.just_destroyed_items = 5  # 5 frame buffer
+
         # npc stuff
         for i in range(len(npcs) - 1, -1, -1):
             npc = npcs[i]
@@ -103,7 +109,7 @@ class Game:
 
             # custom class stuff
             if npc["custom_class"]:
-                terminate = npc["custom_class"].step(npc, self.effects)
+                terminate = npc["custom_class"].step(npc, self.effects, self.npc_manager)
                 if terminate:
                     npcs.pop(i)
 
@@ -142,6 +148,10 @@ class Game:
         if current_biome == "beach":
             decrease_blocks = 1.5
             offset_blocks = self.w // 6
+        else:
+            pass# have BIGGER island
+            # decrease_blocks = 1.25
+            # offset_blocks = self.w // 12
 
         block_count = int(self.w // (self.block_size * b_w / 3) // decrease_blocks)
         for a in range(block_count + 1):
@@ -160,11 +170,20 @@ class Game:
         # draw visual effects
         self.effects.step()
 
+        # if nodes were destroyed, respawn necessary nodes
+        if self.just_destroyed_items > -1:
+            self.just_destroyed_items -= 1
+            if self.just_destroyed_items <= -1:
+                # spawn fishing spots
+                if current_biome == "beach":
+                    npcs.insert(0, self.npc_manager.create_npc("fishing_spot", coords=[self.w // 1.2, self.h]))
+                    npcs.insert(0, self.npc_manager.create_npc("fishing_spot", coords=[self.w - self.w // 1.2, self.h]))
+
         # node stuff
         if not self.player_info.biome_change:
             if tree_count < 20 and (current_biome != "beach" or tree_count < 10):
                 if random.random() >= 0.8 + tree_count / 70:
-                    npcs.append(self.npc_manager.create_npc(f'{current_biome}_tree'))
+                    npcs.append(self.npc_manager.create_npc(f'{current_biome}_{random.choice(["tree", "stone"])}'))
 
         # shrubbery stuff
         if not self.player_info.biome_change:

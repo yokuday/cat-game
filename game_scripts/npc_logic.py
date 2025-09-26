@@ -1,4 +1,6 @@
 import uuid, random, math, json, pyray as pr
+
+from game_scripts.object_specific_scripts.fishing_spot import FishingSpot
 from game_scripts.object_specific_scripts.tree import Tree
 from game_scripts.object_specific_scripts.item import Item
 from game_scripts.object_specific_scripts.storage import Storage
@@ -47,6 +49,10 @@ class NPCManager:
             "storage": Storage(self.w, self.h, self.player_info, self.y_offset),
             "shrub": Shrub(self.w, self.h, self.player_info)
         }
+
+        # overwrite node class
+        if "fishing_spot" in npc_type:
+            custom_classes["node"] = FishingSpot(self.w, self.h, self.player_info, self.y_offset)  # type: ignore
 
         return {
             "type": npc_type,
@@ -239,7 +245,13 @@ class NPCManager:
                 info["x"] += spd * math.copysign(1, goal_x - x) * delta_time
             else:
                 # perform action and then release
-                self.animations.switch_animation(npc, "axe")
+                if "stone" in pathfinding[0][1]["type"]:
+                    self.animations.switch_animation(npc, "pickaxe")
+                else:
+                    if "fishing" in pathfinding[0][1]["type"]:
+                        self.animations.switch_animation(npc, "reeling")
+                    else:
+                        self.animations.switch_animation(npc, "axe")
 
                 frame = animation_info["current_frame"]
 

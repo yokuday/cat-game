@@ -8,7 +8,7 @@ class Storage:
 
         self.item_queue = []  # [item name, 1]
 
-    def step(self, npc, effects):
+    def step(self, npc, effects, npc_manager):
         pass
 
     def post_step(self, npc):

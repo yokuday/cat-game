@@ -149,7 +149,11 @@
         ["run", "/pirate/spr_male_walking", 8],
         ["carry", "/pirate/spr_male_carrying", 8],
         ["axe", "/pirate/spr_male_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4]
+        ["axe-tools", "spr_gathering_axe", 4],
+        ["pickaxe", "/pirate/spr_male_gathering", 4],
+        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+        ["reeling", "/pirate/spr_male_reeling", 4],
+        ["reeling-tools", "spr_gathering_fishing_pole", 4]
       ],
       "sprite_folder": "characters",
       "extra_info": {
@@ -169,7 +173,11 @@
         ["run", "/pirate/spr_female_walking", 8],
         ["carry", "/pirate/spr_female_carrying", 8],
         ["axe", "/pirate/spr_female_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4]
+        ["axe-tools", "spr_gathering_axe", 4],
+        ["pickaxe", "/pirate/spr_female_gathering", 4],
+        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+        ["reeling", "/pirate/spr_female_reeling", 4],
+        ["reeling-tools", "spr_gathering_fishing_pole", 4]
       ],
       "sprite_folder": "characters",
       "extra_info": {
@@ -190,7 +198,11 @@
         ["run", "/orc/spr_male_walking", 8],
         ["carry", "/orc/spr_male_carrying", 8],
         ["axe", "/orc/spr_male_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4]
+        ["axe-tools", "spr_gathering_axe", 4],
+        ["pickaxe", "/orc/spr_male_gathering", 4],
+        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+        ["reeling", "/orc/spr_male_reeling", 4],
+        ["reeling-tools", "spr_gathering_fishing_pole", 4]
       ],
       "sprite_folder": "characters",
       "extra_info": {
@@ -210,7 +222,11 @@
         ["run", "/orc/spr_female_walking", 8],
         ["carry", "/orc/spr_female_carrying", 8],
         ["axe", "/orc/spr_female_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4]
+        ["axe-tools", "spr_gathering_axe", 4],
+        ["pickaxe", "/orc/spr_female_gathering", 4],
+        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+        ["reeling", "/orc/spr_female_reeling", 4],
+        ["reeling-tools", "spr_gathering_fishing_pole", 4]
       ],
       "sprite_folder": "characters",
       "extra_info": {
@@ -231,7 +247,11 @@
         ["run", "/angel/spr_male_walking", 8],
         ["carry", "/angel/spr_male_carrying", 8],
         ["axe", "/angel/spr_male_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4]
+        ["axe-tools", "spr_gathering_axe", 4],
+        ["pickaxe", "/angel/spr_male_gathering", 4],
+        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+        ["reeling", "/angel/spr_male_reeling", 4],
+        ["reeling-tools", "spr_gathering_fishing_pole", 4]
       ],
       "sprite_folder": "characters",
       "extra_info": {
@@ -251,7 +271,11 @@
         ["run", "/angel/spr_female_walking", 8],
         ["carry", "/angel/spr_female_carrying", 8],
         ["axe", "/angel/spr_female_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4]
+        ["axe-tools", "spr_gathering_axe", 4],
+        ["pickaxe", "/angel/spr_female_gathering", 4],
+        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+        ["reeling", "/angel/spr_female_reeling", 4],
+        ["reeling-tools", "spr_gathering_fishing_pole", 4]
       ],
       "sprite_folder": "characters",
       "extra_info": {

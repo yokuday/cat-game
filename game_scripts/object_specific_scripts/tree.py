@@ -30,15 +30,22 @@ class Tree:
         self.current_growth_time = random.randint(self.growth_max_time // 2, self.growth_max_time)
 
         self.occupied = "STILL GROWING"  # set occupied, so npcs can't chop down during growing
+        self.item_type = "wood"
 
-    def step(self, npc, effects):
+    def step(self, npc, effects, npc_manager):
         delta_time = pr.get_frame_time() * 60
 
         general_info = npc["general_info"]
         self.variable_pi += math.pi / 30
 
         # set tree growth stage
-        npc["animation_info"]["current_frame"] = self.max_tree_growth - self.current_growth_frame
+        frame = self.max_tree_growth - self.current_growth_frame
+
+        if "stone" in npc["type"]:
+            frame = self.max_tree_growth - frame
+            self.item_type = "stone"
+
+        npc["animation_info"]["current_frame"] = frame
         self.current_growth_time -= delta_time
         if self.current_growth_time <= 0 and self.current_growth_frame < self.max_tree_growth:
             self.current_growth_frame += 1
@@ -82,7 +89,7 @@ class Tree:
 
         items_to_spawn = []
         for i in range(item_amount):
-            items_to_spawn.append(npc_manager.create_npc(f"item_{current_biome}_wood", coords=[self.x + ((12+i*3) * self.object_scale * self.fall_side), self.h]))
+            items_to_spawn.append(npc_manager.create_npc(f"item_{current_biome}_{self.item_type}", coords=[self.x + ((12+i*3) * self.object_scale * self.fall_side), self.h]))
 
         effects.add_effect([self.x + (15 * self.object_scale * self.fall_side), self.h - 15 * self.object_scale])
 
