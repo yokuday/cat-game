@@ -44,6 +44,9 @@ class FishingSpot:
                 self.fling = 1
                 self.fling_random_offset = random.uniform(0.5, 1.5)
 
+                # splash effect
+                effects.waves.add_ripple(general_info["x"] + self.y_offset * 2 * self.fling_side * -1)
+
         general_info["change_scale"] = 0
 
         # fish flinging
