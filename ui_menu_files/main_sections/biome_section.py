@@ -35,6 +35,7 @@ class BiomeSection:
 
         # biome frames
         self.frames = load_sprite("content/ui/elements/spr_biome_frames.png")
+        self.backgrounds = load_sprite("content/ui/elements/spr_biome_backgrounds.png")
         self.scrollbar_sprite = ui.scroll_bar_sprite
 
         self.scrollbar = Scrollbar(w, border_thickness, len(self.biomes), self.coords, self.scrollbar_sprite)
@@ -88,10 +89,13 @@ class BiomeSection:
                 frame = 1
             draw_sprite(self.frames, x, yy, self.sc, current_frame=frame, frame_count=2)
 
+            # specific biome background
+            draw_sprite(self.backgrounds, x + 3 * self.sc, yy + 3 * self.sc, self.sc, current_frame=i, frame_count=6)
+
             if unlocked:
                 # biome text
                 text = self.biomes[biome][3]
-                draw_fitted_text(self.font, text, x + int(b_w / 2), yy + b_h // 2.25, b_w // 2, 50, BLACK, max_height=b_h // 1.75, align="center", center_y=True)
+                #draw_fitted_text(self.font, text, x + int(b_w / 2), yy + b_h // 2.25, b_w // 2, 50, BLACK, max_height=b_h // 1.75, align="center", center_y=True)
             else:
                 # closed lock
                 sprite = self.icons["closed_lock"]

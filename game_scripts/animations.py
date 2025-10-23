@@ -117,6 +117,7 @@ class GameAnimations:
 
     def draw_npc(self, npc):
         anim_info = npc["animation_info"]
+        general_info = npc["general_info"]
 
         current_animation = anim_info["current_animation"]
 
@@ -129,9 +130,8 @@ class GameAnimations:
 
         current_animations.insert(0, current_animation)
 
-        for animation in current_animations:
+        for i, animation in enumerate(current_animations):
             current_anim = npc["animations"][animation]
-            general_info = npc["general_info"]
 
             offset_y = general_info["offset_y"]
 
@@ -175,5 +175,19 @@ class GameAnimations:
                 origin = pr.Vector2(scaled_width / 2, scaled_height)
 
             color = pr.Color(255, 255, 255, int(alpha * 255))
+            # if health is 0, then be grayed out
+            if general_info["health"] <= 0:
+                color = pr.Color(128, 128, 128, int(alpha * 255))
+
             pr.draw_texture_pro(current_anim["texture"], source_rect, dest_rect,
                                 origin, rotation, color)
+
+            # draw health bar IF health is less than 100%
+            if i == 0:
+                if general_info["max_health"] != general_info["health"]:
+                    hh = int(scale * 3)
+                    start_y = int(general_info["y"] - offset_y * scale + self.y_offset - scaled_height / 4 - hh * 2)
+
+                    pr.draw_rectangle(int(general_info["x"] - scaled_width / 4), start_y, int(scaled_width / 2), hh, pr.Color(50, 50, 50, 255))
+                    pr.draw_rectangle(int(general_info["x"] - scaled_width / 4), start_y, int(int(scaled_width / 2) * (general_info["health"] / general_info["max_health"])), hh,
+                                      pr.Color(255, 128, 128, 255))

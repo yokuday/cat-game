@@ -102,12 +102,12 @@ class VisualEffects:
         self.before_step = ["waves"]
 
         self.biome_effects = {
-            "forest": ["waves", "rain"],
-            "fall_forest": ["waves"],
-            "spring_forest": ["waves"],
-            "pine_forest": ["waves"],
+            "forest": ["", "rain"],
+            "fall_forest": [""],
+            "spring_forest": [""],
+            "pine_forest": [""],
             "beach": ["waves"],
-            "swamp": ["waves"]
+            "swamp": [""]
         }
 
         # temporary effects

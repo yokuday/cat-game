@@ -21,11 +21,12 @@ class NPCManager:
             self.create_npc(npc_type="storage_box", coords=[self.w // 2, self.h]),
             #self.create_npc(npc_type="longy"),
             self.create_npc(npc_type="pirate_male"),
-            self.create_npc(npc_type="pirate_female"),
+            self.create_npc(npc_type="pirate_female", coords=[self.w // 1.5, self.h]),
             self.create_npc(npc_type="orc_male"),
             self.create_npc(npc_type="orc_female"),
             self.create_npc(npc_type="angel_male"),
             self.create_npc(npc_type="angel_female"),
+            self.create_npc(npc_type="enemy_wolf"),
         ]
 
         # for _ in range(7):
@@ -65,7 +66,9 @@ class NPCManager:
                 "animation_offsets": extra_info.get("offset_y_animations", {}),
 
                 "animation_speed": extra_info.get("animation_speed", 4),
-                "animation_tick": 0
+                "animation_tick": 0,
+
+                "dont_move_frames": extra_info.get("dont_move_frames", [])
             },
             "general_info": {
                 "x": coords[0],
@@ -87,7 +90,16 @@ class NPCManager:
 
                 "rotation": 0,
                 "alpha": 1,
-                "change_scale": 1
+                "change_scale": 1,
+
+                "character": extra_info.get("character", False),
+                "enemy": extra_info.get("enemy", False),
+                "dead": False,
+
+                "max_health": extra_info.get("max_health", 10),
+                "health": extra_info.get("max_health", 10),
+
+                "hit_scale": 0
             },
             "action_info": {
                 "doing_action": False,
@@ -111,6 +123,9 @@ class NPCManager:
 
         delta_time = pr.get_frame_time() * 60
 
+        if npc["general_info"]["dead"]:
+            return 0
+
         # check if npc is doing any action
         if actions["pathfinding_values"] is None and actions["doing_action"] is False:
             if actions["idle_goal"] is None:
@@ -125,12 +140,22 @@ class NPCManager:
                 if abs(npc["general_info"]["x"] - actions["idle_goal"]) <= spd:
                     actions["idle_goal"] = None
                 else:
-                    npc["general_info"]["x"] += spd * math.copysign(1, actions["idle_goal"] - npc["general_info"]["x"]) * delta_time
+                    # check if npc isn't in a 'dont move' frame
+                    move_val = spd * math.copysign(1, actions["idle_goal"] - npc["general_info"]["x"]) * delta_time
+                    if npc["animation_info"]["current_frame"] not in npc["animation_info"]["dont_move_frames"]:
+                        npc["general_info"]["x"] += move_val
+                    else:
+                        npc["general_info"]["x"] += move_val / 1000  # still move a TINY BIT, so npc doesn't default to idle animation
 
     def action(self, npc):
         actions = npc["action_info"]
         info = npc["general_info"]
         animation_info = npc["animation_info"]
+
+        enemy = info["enemy"]  # enemies have different action priorities
+        enemy_target = "enemy"
+        if enemy:
+            enemy_target = "character"  # enemies enemy are characters
 
         x = info["x"]
         spd = info["spd"]
@@ -143,8 +168,34 @@ class NPCManager:
             self.reset_actions(actions)
             return "biome change in place"
 
+        # check if npc DIED
+        if info["dead"]:
+            self.force_reset_pathfinding(pathfinding)
+            self.reset_actions(actions)
+            return 0
+
+        # check if enemy exists, and cancel everything if it does
+        enemies = []
+        for obj in self.npcs:
+            if obj["general_info"][enemy_target] and not obj["general_info"]["dead"]:
+                if abs(obj["general_info"]["x"] - x) < self.w / 4:  # radius is 25% of map I guess
+                    enemies.append(obj)
+        if enemies:
+            # check if npc is doing a different action
+            if actions["action_type"] != "fighting":
+                self.force_reset_pathfinding(pathfinding)
+                self.reset_actions(actions)
+
+                actions["action_type"] = "fighting"
+                actions["pathfinding_values"] = [[enemies[0]["general_info"]["x"], enemies[random.randint(0, len(enemies) - 1)], False]]
+
+                return 0
+
         # check if npc can start new action
         if pathfinding is None and not actions["doing_action"]:
+            if enemy:
+                return 0
+
             if actions["action_cooldown"] > 0:
                 actions["action_cooldown"] -= 1
                 return 0
@@ -201,19 +252,34 @@ class NPCManager:
             # if no action was found, set an action cooldown
             actions["action_cooldown"] = random.randint(10, 60)
         else:
+            # check if enemy npc is pursuing has not died yet
+            if actions["action_type"] == "fighting":
+                if pathfinding[0][1]["general_info"]["dead"]:
+                    self.force_reset_pathfinding(pathfinding)
+                    self.reset_actions(actions)
+
+                    return 0
+
+            # pathfind to action
+            current_path = 0
+            for i in range(len(pathfinding)):
+                current_path = i
+                if not pathfinding[i][2]:
+                    break
+
+            goal_x = pathfinding[current_path][0]
+            reach = 1
+
+            # assume enemy is changing its x
+            if actions["action_type"] == "fighting":
+                goal_x = pathfinding[current_path][1]["general_info"]["x"]
+                reach = 5
+
+            obj = pathfinding[current_path][1]
+
             if not actions["doing_action"]:
                 if actions["action_type"] == "carrying":
                     self.animations.switch_animation(npc, "carry")
-
-                # pathfind to action
-                current_path = 0
-                for i in range(len(pathfinding)):
-                    current_path = i
-                    if not pathfinding[i][2]:
-                        break
-
-                goal_x = pathfinding[current_path][0]
-                obj = pathfinding[current_path][1]
 
                 if actions["action_type"] == "carrying":
                     if abs(goal_x - x) <= spd + 6 * obj["general_info"]["scale"]:
@@ -237,12 +303,16 @@ class NPCManager:
                             self.reset_actions(actions)
 
                 else:
-                    if abs(goal_x - x) <= spd + 12 * obj["general_info"]["scale"]:
+                    if abs(goal_x - x) <= spd + 12 * obj["general_info"]["scale"] * reach:
                         actions["doing_action"] = True
                         return 0
 
                 delta_time = pr.get_frame_time() * 60
-                info["x"] += spd * math.copysign(1, goal_x - x) * delta_time
+                move_val = spd * math.copysign(1, goal_x - x) * delta_time
+                if animation_info["current_frame"] not in animation_info["dont_move_frames"]:
+                    info["x"] += move_val
+                else:
+                    info["x"] += move_val / 1000
             else:
                 # perform action and then release
                 if "stone" in pathfinding[0][1]["type"]:
@@ -251,28 +321,46 @@ class NPCManager:
                     if "fishing" in pathfinding[0][1]["type"]:
                         self.animations.switch_animation(npc, "reeling")
                     else:
-                        self.animations.switch_animation(npc, "axe")
+                        if pathfinding[0][1]["general_info"][enemy_target]:
+                            self.animations.switch_animation(npc, "attack")
+                        else:
+                            self.animations.switch_animation(npc, "axe")
 
                 frame = animation_info["current_frame"]
 
                 if frame >= hit_frame:
                     target = pathfinding[0][1]
 
-                    if not actions["action_hit"]:
-                        actions["action_hit"] = True
-                        actions["action_value"] += 0.3  # 4 hits
+                    if actions["action_type"] != "fighting":
+                        if not actions["action_hit"]:
+                            actions["action_hit"] = True
+                            actions["action_value"] += 0.3  # 4 hits
 
-                        target["custom_class"].hit = 1 / 20
+                            target["custom_class"].hit = 1 / 20
 
-                        if actions["action_value"] >= 1:
-                            target["custom_class"].fall = 1 / 10
-                            target["custom_class"].fall_side = math.copysign(1, pathfinding[0][0] - x)
+                            if actions["action_value"] >= 1:
+                                target["custom_class"].fall = 1 / 10
+                                target["custom_class"].fall_side = math.copysign(1, pathfinding[0][0] - x)
+                    else:
+                        if not actions["action_hit"]:
+                            actions["action_hit"] = True
+                            target["general_info"]["health"] -= 0.5
+                            target["general_info"]["hit_scale"] = 1  # getting hit animation
+
+                            if target["general_info"]["health"] <= 0:
+                                actions["action_value"] = 1
+                                target["general_info"]["dead"] = True
 
                 if frame <= 1:
                     actions["action_hit"] = False
 
+                    # check if goal is STILL IN SIGHT
+                    if abs(goal_x - x) > spd + 12 * obj["general_info"]["scale"] * reach:
+                        actions["doing_action"] = False
+
                     # and if action was completed, then reset actions
                     if actions["action_value"] >= 1:
+                        #self.force_reset_pathfinding(pathfinding)   this makes the npcs chop down the resource TWICE, no clue why
                         self.reset_actions(actions)
 
         return 1
@@ -282,3 +370,15 @@ class NPCManager:
         actions["pathfinding_values"] = None
         actions["action_value"] = 0
         actions["action_type"] = ""
+
+    def force_reset_pathfinding(self, pathfinding):
+        if pathfinding:
+            for item in pathfinding:
+                if item[1]["parent_type"] == "item":
+                    if item[1]["custom_class"].picked_up:
+                        item[1]["custom_class"].deposited = True  # destroy item
+                    else:
+                        item[1]["custom_class"].occupied = None
+                else:
+                    if item[1]["custom_class"]:
+                        item[1]["custom_class"].occupied = None

@@ -16,7 +16,7 @@ class PlayerInfo:
                 "current_exp": 0,
                 "currency": 200,
 
-                "current_biome": "beach"
+                "current_biome": "forest"
             }
 
         # send current info

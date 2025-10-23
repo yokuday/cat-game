@@ -82,12 +82,15 @@ class Game:
         action_npcs = ["spikey", "shortie", "moppie", "longy", "curly", "bowly",
                        "pirate_captain", "green_piggy", "goblin",
 
-                       "pirate_male", "pirate_female", "orc_male", "orc_female", "angel_male", "angel_female"]
+                       "pirate_male", "pirate_female", "orc_male", "orc_female", "angel_male", "angel_female",
+
+                       "enemy_wolf"]
 
         if self.player_info.biome_destroy_objects:
             self.just_destroyed_items = 5  # 5 frame buffer
 
         # npc stuff
+        npcs_to_pop = []
         for i in range(len(npcs) - 1, -1, -1):
             npc = npcs[i]
             general_info = npc["general_info"]
@@ -97,6 +100,12 @@ class Game:
             if npc["type"] in action_npcs:
                 self.npc_manager.idle(npc)
                 self.npc_manager.action(npc)
+
+                # check if enemy died ( lol )
+                if general_info["dead"] and general_info["enemy"]:
+                    npcs_to_pop.append(i)
+                    self.effects.add_effect(
+                        [general_info["x"], self.h - 45 * general_info["scale"]])
 
             if npc["parent_type"] == "node":
                 tree_count += 1
@@ -111,7 +120,8 @@ class Game:
             if npc["custom_class"]:
                 terminate = npc["custom_class"].step(npc, self.effects, self.npc_manager)
                 if terminate:
-                    npcs.pop(i)
+                    #npcs.pop(i)
+                    npcs_to_pop.append(i)
 
                     # last terminate call
                     if hasattr(npc["custom_class"], "terminate"):
@@ -134,6 +144,9 @@ class Game:
             if npc["custom_class"]:
                 if hasattr(npc["custom_class"], "post_step"):
                     npc["custom_class"].post_step(npc)
+
+        for i in npcs_to_pop:
+            npcs.pop(i)
 
         # draw BEFORE visual effects
         self.effects.step(before_step=True)
@@ -184,6 +197,9 @@ class Game:
             if tree_count < 20 and (current_biome != "beach" or tree_count < 10):
                 if random.random() >= 0.8 + tree_count / 70:
                     npcs.append(self.npc_manager.create_npc(f'{current_biome}_{random.choice(["tree", "stone"])}'))
+
+                    if random.random() < 0.5:
+                        pass#npcs.insert(0, self.npc_manager.create_npc(f'enemy_wolf'))
 
         # shrubbery stuff
         if not self.player_info.biome_change:

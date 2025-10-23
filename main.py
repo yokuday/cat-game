@@ -6,6 +6,7 @@ import time
 
 test_mode = True
 # pyinstaller --onefile --windowed main.py
+# pyinstaller --onefile --windowed ui_main.py
 
 ui = UIBridge(test_mode)
 

@@ -150,6 +150,8 @@
         ["carry", "/pirate/spr_male_carrying", 8],
         ["axe", "/pirate/spr_male_gathering", 4],
         ["axe-tools", "spr_gathering_axe", 4],
+        ["attack", "/pirate/spr_male_gathering", 4],
+        ["attack-tools", "spr_gathering_axe", 4],
         ["pickaxe", "/pirate/spr_male_gathering", 4],
         ["pickaxe-tools", "spr_gathering_pickaxe", 4],
         ["reeling", "/pirate/spr_male_reeling", 4],
@@ -164,7 +166,9 @@
         },
 
         "height_multiplier": 0.5,
-        "animation_speed": 6
+        "animation_speed": 6,
+
+        "character": true
       }
   },
   "pirate_female": {
@@ -174,6 +178,8 @@
         ["carry", "/pirate/spr_female_carrying", 8],
         ["axe", "/pirate/spr_female_gathering", 4],
         ["axe-tools", "spr_gathering_axe", 4],
+        ["attack", "/pirate/spr_female_gathering", 4],
+        ["attack-tools", "spr_gathering_axe", 4],
         ["pickaxe", "/pirate/spr_female_gathering", 4],
         ["pickaxe-tools", "spr_gathering_pickaxe", 4],
         ["reeling", "/pirate/spr_female_reeling", 4],
@@ -188,7 +194,9 @@
         },
 
         "height_multiplier": 0.5,
-        "animation_speed": 6
+        "animation_speed": 6,
+
+        "character": true
       }
   },
 
@@ -199,6 +207,8 @@
         ["carry", "/orc/spr_male_carrying", 8],
         ["axe", "/orc/spr_male_gathering", 4],
         ["axe-tools", "spr_gathering_axe", 4],
+        ["attack", "/orc/spr_male_gathering", 4],
+        ["attack-tools", "spr_gathering_axe", 4],
         ["pickaxe", "/orc/spr_male_gathering", 4],
         ["pickaxe-tools", "spr_gathering_pickaxe", 4],
         ["reeling", "/orc/spr_male_reeling", 4],
@@ -213,7 +223,9 @@
         },
 
         "height_multiplier": 0.5,
-        "animation_speed": 6
+        "animation_speed": 6,
+
+        "character": true
       }
   },
   "orc_female": {
@@ -223,6 +235,8 @@
         ["carry", "/orc/spr_female_carrying", 8],
         ["axe", "/orc/spr_female_gathering", 4],
         ["axe-tools", "spr_gathering_axe", 4],
+        ["attack", "/orc/spr_female_gathering", 4],
+        ["attack-tools", "spr_gathering_axe", 4],
         ["pickaxe", "/orc/spr_female_gathering", 4],
         ["pickaxe-tools", "spr_gathering_pickaxe", 4],
         ["reeling", "/orc/spr_female_reeling", 4],
@@ -237,7 +251,9 @@
         },
 
         "height_multiplier": 0.5,
-        "animation_speed": 6
+        "animation_speed": 6,
+
+        "character": true
       }
   },
 
@@ -248,6 +264,8 @@
         ["carry", "/angel/spr_male_carrying", 8],
         ["axe", "/angel/spr_male_gathering", 4],
         ["axe-tools", "spr_gathering_axe", 4],
+        ["attack", "/angel/spr_male_gathering", 4],
+        ["attack-tools", "spr_gathering_axe", 4],
         ["pickaxe", "/angel/spr_male_gathering", 4],
         ["pickaxe-tools", "spr_gathering_pickaxe", 4],
         ["reeling", "/angel/spr_male_reeling", 4],
@@ -262,32 +280,63 @@
         },
 
         "height_multiplier": 0.5,
-        "animation_speed": 6
+        "animation_speed": 6,
+
+        "character": true
       }
   },
   "angel_female": {
-      "animations": [
-        ["idle", "/angel/spr_female_idle", 4],
-        ["run", "/angel/spr_female_walking", 8],
-        ["carry", "/angel/spr_female_carrying", 8],
-        ["axe", "/angel/spr_female_gathering", 4],
-        ["axe-tools", "spr_gathering_axe", 4],
-        ["pickaxe", "/angel/spr_female_gathering", 4],
-        ["pickaxe-tools", "spr_gathering_pickaxe", 4],
-        ["reeling", "/angel/spr_female_reeling", 4],
-        ["reeling-tools", "spr_gathering_fishing_pole", 4]
-      ],
-      "sprite_folder": "characters",
-      "extra_info": {
-        "offset_y": 10,
+    "animations": [
+      ["idle", "/angel/spr_female_idle", 4],
+      ["run", "/angel/spr_female_walking", 8],
+      ["carry", "/angel/spr_female_carrying", 8],
+      ["axe", "/angel/spr_female_gathering", 4],
+      ["axe-tools", "spr_gathering_axe", 4],
+      ["attack", "/angel/spr_female_gathering", 4],
+      ["attack-tools", "spr_gathering_axe", 4],
+      ["pickaxe", "/angel/spr_female_gathering", 4],
+      ["pickaxe-tools", "spr_gathering_pickaxe", 4],
+      ["reeling", "/angel/spr_female_reeling", 4],
+      ["reeling-tools", "spr_gathering_fishing_pole", 4]
+    ],
+    "sprite_folder": "characters",
+    "extra_info": {
+      "offset_y": 10,
 
-        "offset_y_animations": {
-          "run": 12
-        },
+      "offset_y_animations": {
+        "run": 12
+      },
 
-        "height_multiplier": 0.5,
-        "animation_speed": 6
-      }
+      "height_multiplier": 0.5,
+      "animation_speed": 6,
+
+      "character": true
+    }
+  },
+
+  "enemy_wolf": {
+    "animations": [
+      ["idle", "/wolf/spr_idle", 4],
+      ["run", "/wolf/spr_walk", 8],
+      ["attack", "/wolf/spr_attack", 4]
+    ],
+    "sprite_folder": "characters/enemies",
+    "extra_info": {
+      "enemy": true,
+
+      "offset_y": 12,
+
+      "offset_y_animations": {
+        "run": 10
+      },
+
+      "dont_move_frames": [0, 7],
+
+      "heigh_multiplier": 0.3,
+      "animation_speed": 6,
+
+      "max_health": 3
+    }
   },
 
 
